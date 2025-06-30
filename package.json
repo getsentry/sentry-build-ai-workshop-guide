@@ -1,0 +1,19 @@
+{
+  "name": "sentry-build",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.32.1",
+    "@astrojs/vercel": "^8.1.1",
+    "@sentry/astro": "^9.27.0",
+    "astro": "^5.1.5",
+    "sharp": "^0.32.6"
+  }
+}

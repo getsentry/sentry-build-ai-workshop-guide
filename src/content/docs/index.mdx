@@ -1,0 +1,35 @@
+---
+title: Welcome to Sentry Build
+description: Fullstack Performance and Debugging with JavaScript
+template: splash
+hero:
+  tagline: A hands-on workshop to get pretty good at tracing, logging, and application monitoring with Sentry. Featuring technologies like React, Node.js, NeonDB, and Drizzle.
+  image:
+    file: /src/assets/sentry-glyph-light-400x367.png
+  actions:
+    - text: Get Started
+      link: /quickstart/
+      icon: right-arrow
+    - text: Sentry.io
+      link: https://sentry.io
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Workshop Modules
+
+<CardGrid>
+	<Card title="Getting Started with Sentry" icon="rocket">
+		Set up Error Monitoring, Logging, Session Replays, and Tracing in your React frontend and Node.js backend.
+	</Card>
+	<Card title="Custom Spans and Metrics" icon="setting">
+		Create custom spans with attributes and metrics, and set up alerts for performance monitoring.
+	</Card>
+	<Card title="Understanding Database Queries" icon="information">
+		Learn to search for and leverage database query performance data in your Sentry spans.
+	</Card>
+	<Card title="Creating Dashboards and Visualizations" icon="open-book">
+		Build custom dashboards to visualize your application's performance and error data.
+	</Card>
+</CardGrid>
