@@ -32,7 +32,7 @@ const uniqueId = `image-${Math.random().toString(36).substring(2, 11)}`;
     width="100%" 
     id={uniqueId}
     class="clickable-image" 
-    onclick={`toggleLightbox('${src}', '${alt}')`}
+    onclick={`openLightbox('${src}', '${alt}')`}
   />
   {caption && <figcaption>{caption}</figcaption>}
 </figure>
