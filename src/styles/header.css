@@ -26,8 +26,8 @@
 }
 
 /* Style the GET STARTED button that appeared in the screenshot */
-.cta-button, 
-[data-has-sidebar] header a[href*="get-started"] {
+.cta-button,
+[data-has-sidebar] header a[href*='get-started'] {
   background-color: white;
   color: #14101c !important;
   font-weight: 600;
@@ -40,8 +40,8 @@
   margin-left: 0.5rem;
 }
 
-.cta-button:hover, 
-[data-has-sidebar] header a[href*="get-started"]:hover {
+.cta-button:hover,
+[data-has-sidebar] header a[href*='get-started']:hover {
   background-color: #f2f2f2;
 }
 
@@ -72,7 +72,7 @@
 
 /* Discord button style */
 .discord-button {
-  background-color: #5865F2;
+  background-color: #5865f2;
   border-radius: 50px;
   padding: 8px 16px;
   color: white;
@@ -85,4 +85,4 @@
 
 .discord-button:hover {
   background-color: #4752c4;
-} 
+}

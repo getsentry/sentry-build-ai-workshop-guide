@@ -50,6 +50,7 @@ The workshop is organized into 4 main topic areas focused on fullstack JavaScrip
 ## Technology Focus
 
 The workshop specifically covers:
+
 - **Frontend**: Vite + React with Sentry browser SDK
 - **Backend**: Bun runtime with Sentry Bun SDK
 - **Database**: SQLite with custom instrumentation patterns

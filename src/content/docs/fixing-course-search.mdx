@@ -8,11 +8,11 @@ import ScaledImage from '../../components/ScaledImage.astro';
 
 Now that we're able to login, naturally the next thing we'd want to do is be able to search for courses that we can enroll in, right?
 
-Well, clearly not - because its broken! 
+Well, clearly not - because its broken!
 
 <ScaledImage src="/assets/img/broken-search.webp" alt="Broken Course Search" />
 
-We're seeing the error pop up in Sentry, but how can we use [**Tracing**](https://docs.sentry.io/concepts/key-terms/tracing/distributed-tracing/#traces-transactions-and-spans) and [**Logs**](https://docs.sentry.io/platforms/javascript/guides/react/logs/) to help troubleshoot the issue quicker? 
+We're seeing the error pop up in Sentry, but how can we use [**Tracing**](https://docs.sentry.io/concepts/key-terms/tracing/distributed-tracing/#traces-transactions-and-spans) and [**Logs**](https://docs.sentry.io/platforms/javascript/guides/react/logs/) to help troubleshoot the issue quicker?
 
 <ScaledImage src="/assets/img/m2-issues.png" alt="Modul 2 Issues" size={100} />
 
@@ -38,55 +38,62 @@ Let's start by instrumenting the frontend search functionality to track search r
      import * as Sentry from '@sentry/react';
      ```
 
-  2. **Set Up Frontend Search Logging**
+2. **Set Up Frontend Search Logging**
 
-     Add the logger destructuring after your import to access Sentry's logging functionality:
+   Add the logger destructuring after your import to access Sentry's logging functionality:
 
-     ```tsx
-     const { logger } = Sentry
-     ```
+   ```tsx
+   const { logger } = Sentry;
+   ```
 
-  3. **Replace the Complete Search Courses Method**
+3. **Replace the Complete Search Courses Method**
 
-     Replace the `search.courses` method with this instrumented version:
+   Replace the `search.courses` method with this instrumented version:
 
-     ```tsx
-     search: {
-       courses: (query: string) => 
-         Sentry.startSpan(
-           {
-             name: 'search.courses.frontend',
-             op: 'http.client',
-             attributes: {
-               'search.query': query,
-               'http.url': `/search/courses?query=${encodeURIComponent(query)}`,
-             },
+   ```tsx
+   search: {
+     courses: (query: string) =>
+       Sentry.startSpan(
+         {
+           name: 'search.courses.frontend',
+           op: 'http.client',
+           attributes: {
+             'search.query': query,
+             'http.url': `/search/courses?query=${encodeURIComponent(query)}`,
            },
-           () => {
-             logger.info(logger.fmt`Searching courses with query: ${query}`);
-             return fetchApi<any[]>(`/search/courses?query=${encodeURIComponent(query)}`);
-           }
-         ),
-     },
-     ```
+         },
+         () => {
+           logger.info(logger.fmt`Searching courses with query: ${query}`);
+           return fetchApi<any[]>(`/search/courses?query=${encodeURIComponent(query)}`);
+         }
+       ),
+   },
+   ```
 
-  4. **Test Search Tracing**
+4. **Test Search Tracing**
 
-     Try searching for courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your search-related spans using the `search.courses.frontend` value.
+   Try searching for courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your search-related spans using the `search.courses.frontend` value.
 
-     <ScaledImage src="/assets/img/m2-trace-explorer-fe.png" alt="Trace Explorer FE" size={100} />
+   <ScaledImage
+     src="/assets/img/m2-trace-explorer-fe.png"
+     alt="Trace Explorer FE"
+     size={100}
+   />
 
-  5. **Examine the Trace**
+5. **Examine the Trace**
 
-     Clicking into one of the spans will show you the trace waterfall where you can examine the properties of any of the spans submitted. 
+   Clicking into one of the spans will show you the trace waterfall where you can examine the properties of any of the spans submitted.
 
-     <ScaledImage src="/assets/img/m2-trace-waterfall-fe.png" alt="Trace Waterfall" />
+   <ScaledImage
+     src="/assets/img/m2-trace-waterfall-fe.png"
+     alt="Trace Waterfall"
+   />
 
-  6. **Examine the Logs**
+6. **Examine the Logs**
 
-     Check the **Explore > Logs** tab for the log entries created by `logger.info` and `logger.error` calls.
+   Check the **Explore > Logs** tab for the log entries created by `logger.info` and `logger.error` calls.
 
-     <ScaledImage src="/assets/img/m2-logs-fe.png" alt="Logs" />
+   <ScaledImage src="/assets/img/m2-logs-fe.png" alt="Logs" />
 
 </Steps>
 
@@ -103,130 +110,142 @@ Now let's instrument the backend search functionality to trace server-side proce
      import * as Sentry from '@sentry/node';
      ```
 
-  2. **Set Up Backend Search Logging**
+2. **Set Up Backend Search Logging**
 
-     Add the logger destructuring after your import:
+   Add the logger destructuring after your import:
 
-     ```tsx
-     const { logger } = Sentry
-     ```
+   ```tsx
+   const { logger } = Sentry;
+   ```
 
-  3. **Replace the Complete Search Route**
+3. **Replace the Complete Search Route**
 
-     Replace the entire `searchRoutes.get('/search/courses'` route with this instrumented version:
+   Replace the entire `searchRoutes.get('/search/courses'` route with this instrumented version:
 
-     ```tsx
-     searchRoutes.get('/search/courses', async (req, res) => {
-       try {
-         const { q } = req.query;
+   ```tsx
+   searchRoutes.get('/search/courses', async (req, res) => {
+     try {
+       const { q } = req.query;
 
-         await Sentry.startSpan(
-           {
-             name: 'search.courses.server',
-             op: 'db.search',
-             attributes: {
-               'search.query': typeof q === 'string' ? q : String(q || ''),
-             },
+       await Sentry.startSpan(
+         {
+           name: 'search.courses.server',
+           op: 'db.search',
+           attributes: {
+             'search.query': typeof q === 'string' ? q : String(q || ''),
            },
-           async (span) => {
-             logger.info(logger.fmt`Backend received query parameters: ${q}`);
-             
-             // Add query validation attributes
-             span.setAttributes({
-               'search.query_provided': !!q,
-             });
-             
-             // Realistic API validation - backend expects 'q' parameter
-             if (!q || typeof q !== 'string') {
-               // This will throw when frontend sends 'query' instead of 'q'
-               throw new Error(`Missing required parameter 'q'. Received parameters: ${Object.keys(req.query).join(', ')}`);
-             }
+         },
+         async (span) => {
+           logger.info(logger.fmt`Backend received query parameters: ${q}`);
 
-             logger.info(logger.fmt`Backend searching for: "${q}"`);
+           // Add query validation attributes
+           span.setAttributes({
+             'search.query_provided': !!q,
+           });
 
-             // Simple search implementation
-             const results = await db
-               .select({
-                 id: courses.id,
-                 title: courses.title,
-                 slug: courses.slug,
-                 description: courses.description,
-                 instructor: users.name,
-                 thumbnail: courses.thumbnail,
-                 category: courses.category,
-                 level: courses.level,
-                 duration: courses.duration,
-                 price: courses.price,
-                 rating: courses.rating,
-                 reviewCount: courses.reviewCount,
-               })
-               .from(courses)
-               .leftJoin(users, eq(courses.instructorId, users.id))
-               .where(
-                 or(
-                   ilike(courses.title, `%${q}%`),
-                   ilike(courses.description, `%${q}%`)
-                 )
-               )
-               .orderBy(courses.rating)
-               .limit(50);
-
-             // Add search results attributes
-             span.setAttributes({
-               'search.results_count': results.length,
-               'search.results_found': results.length > 0,
-               'search.query_successful': true,
-             });
-
-             logger.info(logger.fmt`Backend found ${results.length} results for query: "${q}"`);
-             
-             const responseData = {
-               results,
-               total: results.length,
-               query: q
-             };
-
-             res.json(responseData);
+           // Realistic API validation - backend expects 'q' parameter
+           if (!q || typeof q !== 'string') {
+             // This will throw when frontend sends 'query' instead of 'q'
+             throw new Error(
+               `Missing required parameter 'q'. Received parameters: ${Object.keys(req.query).join(', ')}`
+             );
            }
-         );
 
-       } catch (error: any) {
-         Sentry.captureException(error, {
-           tags: {
-             operation: 'search.courses.server',
-             query: req.query.q as string || 'undefined',
-           },
-           extra: {
-             queryParameters: req.query,
-             searchQuery: req.query.q,
-             receivedParameters: Object.keys(req.query),
-             requestUrl: req.url,
-           },
-         });
+           logger.info(logger.fmt`Backend searching for: "${q}"`);
 
-         logger.error(logger.fmt`Search API Error for query "${req.query.q}": ${error.message}`);
-         throw new Error(error.message);
-       }
-     });
-     ```
+           // Simple search implementation
+           const results = await db
+             .select({
+               id: courses.id,
+               title: courses.title,
+               slug: courses.slug,
+               description: courses.description,
+               instructor: users.name,
+               thumbnail: courses.thumbnail,
+               category: courses.category,
+               level: courses.level,
+               duration: courses.duration,
+               price: courses.price,
+               rating: courses.rating,
+               reviewCount: courses.reviewCount,
+             })
+             .from(courses)
+             .leftJoin(users, eq(courses.instructorId, users.id))
+             .where(
+               or(
+                 ilike(courses.title, `%${q}%`),
+                 ilike(courses.description, `%${q}%`)
+               )
+             )
+             .orderBy(courses.rating)
+             .limit(50);
 
-  4. **Test Search Tracing**
+           // Add search results attributes
+           span.setAttributes({
+             'search.results_count': results.length,
+             'search.results_found': results.length > 0,
+             'search.query_successful': true,
+           });
 
-     Try searching for courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your search-related spans using the `search.courses.server` value.
+           logger.info(
+             logger.fmt`Backend found ${results.length} results for query: "${q}"`
+           );
 
-     <ScaledImage src="/assets/img/m2-trace-explorer-be.png" alt="Trace Explorer BE" size={100} />
+           const responseData = {
+             results,
+             total: results.length,
+             query: q,
+           };
 
-  5. **Examine the Trace**
+           res.json(responseData);
+         }
+       );
+     } catch (error: any) {
+       Sentry.captureException(error, {
+         tags: {
+           operation: 'search.courses.server',
+           query: (req.query.q as string) || 'undefined',
+         },
+         extra: {
+           queryParameters: req.query,
+           searchQuery: req.query.q,
+           receivedParameters: Object.keys(req.query),
+           requestUrl: req.url,
+         },
+       });
 
-     Clicking into one of the spans will show you the trace waterfall where you can examine the properties of any of the spans submitted.
+       logger.error(
+         logger.fmt`Search API Error for query "${req.query.q}": ${error.message}`
+       );
+       throw new Error(error.message);
+     }
+   });
+   ```
 
-     <ScaledImage src="/assets/img/m2-trace-waterfall-be.png" alt="Trace Waterfall" />
+4. **Test Search Tracing**
 
-  6. **Examine the Logs**
+   Try searching for courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your search-related spans using the `search.courses.server` value.
 
-     Check the **Explore > Logs** tab for the log entries created by `logger.info` and `logger.error` calls.
+   <ScaledImage
+     src="/assets/img/m2-trace-explorer-be.png"
+     alt="Trace Explorer BE"
+     size={100}
+   />
 
-     <ScaledImage src="/assets/img/m2-logs-be.png" alt="Logs" />
+5. **Examine the Trace**
+
+   Clicking into one of the spans will show you the trace waterfall where you can examine the properties of any of the spans submitted.
+
+   <ScaledImage
+     src="/assets/img/m2-trace-waterfall-be.png"
+     alt="Trace Waterfall"
+   />
+
+6. **Examine the Logs**
+
+   Check the **Explore > Logs** tab for the log entries created by `logger.info` and `logger.error` calls.
+
+   <ScaledImage src="/assets/img/m2-logs-be.png" alt="Logs" />
 
 </Steps>
 
@@ -261,4 +280,8 @@ The issue is a parameter name mismatch between the frontend and backend! The fro
 
 Once this is complete, give search a try again and you should see your results!
 
-<ScaledImage src="/assets/img/m2-search-success.png" alt="Search Fixed" size={100} />
+<ScaledImage
+  src="/assets/img/m2-search-success.png"
+  alt="Search Fixed"
+  size={100}
+/>

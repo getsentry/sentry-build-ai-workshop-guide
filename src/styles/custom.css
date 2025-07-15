@@ -6,24 +6,24 @@
   --sl-color-accent-low: #2b1e44;
   --sl-color-accent: #8661c5;
   --sl-color-accent-high: #9b79df;
-  
+
   /* Background colors */
   --sl-color-bg: #14101c;
   --sl-color-bg-nav: #1e1431;
   --sl-color-bg-sidebar: var(--sl-color-bg-nav);
   --sl-color-bg-inline-code: rgba(134, 97, 197, 0.15);
-  
+
   /* Text colors */
   --sl-color-text: #ffffff;
   --sl-color-text-accent: var(--sl-color-accent-high);
   --sl-color-text-invert: var(--sl-color-bg);
-  
+
   /* Border colors */
   --sl-color-border: #382a50;
-  
+
   /* Other UI colors */
   --sl-color-bg-selection: rgba(134, 97, 197, 0.25);
-  
+
   /* Sentry button styles */
   --sl-button-color: white;
   --sl-button-border-radius: 4px;
@@ -101,13 +101,13 @@
 }
 
 /* Remove default styling for minimal variant */
-[data-has-hero] .hero .actions a[data-variant="minimal"] {
+[data-has-hero] .hero .actions a[data-variant='minimal'] {
   background-color: white;
   color: black !important;
   border: none;
 }
 
-[data-has-hero] .hero .actions a[data-variant="minimal"]:hover {
+[data-has-hero] .hero .actions a[data-variant='minimal']:hover {
   background-color: #f2f2f2;
 }
 
@@ -154,4 +154,4 @@
 /* Table of contents styling */
 .toc-wrapper {
   border-left: 1px solid var(--sl-color-border);
-} 
+}
