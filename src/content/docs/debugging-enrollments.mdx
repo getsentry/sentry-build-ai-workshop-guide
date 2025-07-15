@@ -6,9 +6,13 @@ description: Use Sentry's Error Monitoring, Logs, and Tracing to troubleshoot is
 import { Steps } from '@astrojs/starlight/components';
 import ScaledImage from '../../components/ScaledImage.astro';
 
-We can search for courses now! But now when we try to enroll, we're getting some unresponsive controls. 
+We can search for courses now! But now when we try to enroll, we're getting some unresponsive controls.
 
-<ScaledImage src="/assets/img/m3-enroll-error.png" alt="Enroll Error" size={100} />
+<ScaledImage
+  src="/assets/img/m3-enroll-error.png"
+  alt="Enroll Error"
+  size={100}
+/>
 
 In Sentry, we're seeing the error pop up - and as we've shown previously, we can use [**Tracing**](https://docs.sentry.io/concepts/key-terms/tracing/distributed-tracing/#traces-transactions-and-spans) and [**Logs**](https://docs.sentry.io/platforms/javascript/guides/react/logs/) to help troubleshoot the issue quicker.
 
@@ -33,7 +37,7 @@ Let's start by instrumenting the frontend enrollment functionality to track enro
      Navigate to the `/apps/frontend/src/services/api.ts` file and replace the `create` method in the `enrollments` object with this instrumented version:
 
      ```tsx
-     create: (courseId: string, userId: string | undefined) => 
+     create: (courseId: string, userId: string | undefined) =>
        Sentry.startSpan(
          {
            name: 'enrollment.create.frontend',
@@ -54,23 +58,30 @@ Let's start by instrumenting the frontend enrollment functionality to track enro
        ),
      ```
 
-  2. **Test Enrollment Tracing**
+2. **Test Enrollment Tracing**
 
-     Try enrolling in courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your enrollment-related spans using the `enrollment.create.server` value.
+   Try enrolling in courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your enrollment-related spans using the `enrollment.create.server` value.
 
-     <ScaledImage src="/assets/img/m3-trace-explorer-fe.png" alt="Trace Explorer FE" size={100} />
+   <ScaledImage
+     src="/assets/img/m3-trace-explorer-fe.png"
+     alt="Trace Explorer FE"
+     size={100}
+   />
 
-  3. **Examine the Trace**
+3. **Examine the Trace**
 
-     Clicking into one of the spans will show you the trace waterfall where you can examine the properties of any of the spans submitted.
+   Clicking into one of the spans will show you the trace waterfall where you can examine the properties of any of the spans submitted.
 
-     <ScaledImage src="/assets/img/m3-trace-waterfall-fe.png" alt="Trace Waterfall" />
+   <ScaledImage
+     src="/assets/img/m3-trace-waterfall-fe.png"
+     alt="Trace Waterfall"
+   />
 
-  4. **Examine the Logs**
+4. **Examine the Logs**
 
-     Check the **Explore > Logs** tab for the log entries created by `logger.info` calls.
+   Check the **Explore > Logs** tab for the log entries created by `logger.info` calls.
 
-     <ScaledImage src="/assets/img/m3-logs-fe.png" alt="Logs" />
+   <ScaledImage src="/assets/img/m3-logs-fe.png" alt="Logs" />
 
 </Steps>
 
@@ -87,163 +98,180 @@ Now let's instrument the backend enrollment functionality to trace server-side p
      import * as Sentry from '@sentry/node';
      ```
 
-  2. **Set Up Backend Enrollment Logging**
+2. **Set Up Backend Enrollment Logging**
 
-     Add the logger destructuring after your imports:
+   Add the logger destructuring after your imports:
 
-     ```tsx
-     const { logger } = Sentry
-     ```
+   ```tsx
+   const { logger } = Sentry;
+   ```
 
-  3. **Replace the Complete Enrollment Route**
+3. **Replace the Complete Enrollment Route**
 
-     Replace the entire `enrollmentRoutes.post('/enrollments', async (req, res)` route with this instrumented version:
+   Replace the entire `enrollmentRoutes.post('/enrollments', async (req, res)` route with this instrumented version:
 
-     ```tsx
-     enrollmentRoutes.post('/enrollments', async (req, res) => {
-       try {
-         const { userId, courseId } = req.body;
+   ```tsx
+   enrollmentRoutes.post('/enrollments', async (req, res) => {
+     try {
+       const { userId, courseId } = req.body;
 
-         await Sentry.startSpan(
-           {
-             name: 'enrollment.create.server',
-             op: 'enrollment.process',
-             attributes: {
-               'enrollment.course_id': courseId || 'undefined',
-               'enrollment.user_id': userId || 'undefined',
-               'enrollment.user_id_provided': !!userId,
-             },
+       await Sentry.startSpan(
+         {
+           name: 'enrollment.create.server',
+           op: 'enrollment.process',
+           attributes: {
+             'enrollment.course_id': courseId || 'undefined',
+             'enrollment.user_id': userId || 'undefined',
+             'enrollment.user_id_provided': !!userId,
            },
-           async (span) => {
-             console.log('🔍 Checking enrollment request:', { userId, courseId });
-             logger.info(logger.fmt`Processing enrollment request for course: ${courseId || 'undefined'}, user: ${userId || 'undefined'}`);
+         },
+         async (span) => {
+           console.log('🔍 Checking enrollment request:', { userId, courseId });
+           logger.info(
+             logger.fmt`Processing enrollment request for course: ${courseId || 'undefined'}, user: ${userId || 'undefined'}`
+           );
 
-             // Add initial request validation attributes
+           // Add initial request validation attributes
+           span.setAttributes({
+             'enrollment.request.course_id_provided': !!courseId,
+             'enrollment.request.user_id_provided': !!userId,
+           });
+
+           // First: Validate course ID is provided
+           if (!courseId) {
              span.setAttributes({
-               'enrollment.request.course_id_provided': !!courseId,
-               'enrollment.request.user_id_provided': !!userId,
+               'enrollment.validation.course_id': 'missing',
+               'enrollment.validation.result': 'failed',
+               'enrollment.error': 'course_id_required',
              });
-
-             // First: Validate course ID is provided
-             if (!courseId) {
-               span.setAttributes({
-                 'enrollment.validation.course_id': 'missing',
-                 'enrollment.validation.result': 'failed',
-                 'enrollment.error': 'course_id_required',
-               });
-               console.error('❌ Course ID is missing');
-               res.status(400).json({ error: 'Course ID is required.' });
-               return;
-             }
-
-             logger.info(logger.fmt`Verifying course exists: ${courseId}`);
-
-             const courseCheck = await db
-               .select()
-               .from(courses)
-               .where(eq(courses.id, courseId))
-               .limit(1);
-
-             logger.info('📚 Course check result:', courseCheck);
-
-             if (courseCheck.length === 0) {
-               span.setAttributes({
-                 'enrollment.validation.course_exists': false,
-                 'enrollment.validation.result': 'failed',
-                 'enrollment.error': 'course_not_found',
-               });
-               console.error('❌ Course not found:', courseId);
-               res.status(404).json({ error: `Course with id ${courseId} not found` });
-               return;
-             }
-
-             // Add course details to span
-             const course = courseCheck[0];
-             span.setAttributes({
-               'enrollment.validation.course_exists': true,
-               'enrollment.course.title': course.title,
-               'enrollment.course.category': course.category || 'unknown',
-               'enrollment.course.level': course.level || 'unknown',
-               'enrollment.course.instructor_id': course.instructorId || 'unknown',
-             });
-
-             logger.info(logger.fmt`Course found: "${course.title}" (${course.category})`);
-
-             // Third: Validate user ID is provided
-             if (!userId) {
-               span.setAttributes({
-                 'enrollment.validation.user_id': 'missing',
-                 'enrollment.validation.result': 'failed',
-                 'enrollment.error': 'user_id_missing',
-               });
-               console.error('❌ User ID is missing');
-               throw new Error('User ID is missing');
-             }
-
-             // Add final validation success attributes
-             span.setAttributes({
-               'enrollment.validation.user_id': 'provided',
-               'enrollment.validation.result': 'passed',
-               'enrollment.process.success': true,
-             });
-
-             logger.info(logger.fmt`Enrollment validation successful for user ${userId} in course "${course.title}"`);
-
-             console.log('✅ All validation successful, enrollment approved');
-             res.json({ 
-               success: true, 
-               message: 'Enrollment validation successful',
-               courseId,
-               userId 
-             });
+             console.error('❌ Course ID is missing');
+             res.status(400).json({ error: 'Course ID is required.' });
+             return;
            }
-         );
 
-       } catch (error: any) {
-         Sentry.captureException(error, {
-           tags: {
-             operation: 'enrollment.create.backend',
-             course_id: req.body.courseId || 'undefined',
-             user_id: req.body.userId || 'undefined',
-           },
-           extra: {
-             requestBody: req.body,
-             courseId: req.body.courseId,
-             userId: req.body.userId,
-             hasUserId: !!req.body.userId,
-             hasCourseId: !!req.body.courseId,
-           },
-         });
+           logger.info(logger.fmt`Verifying course exists: ${courseId}`);
 
-         logger.error(logger.fmt`Enrollment error for course ${req.body.courseId || 'undefined'}, user ${req.body.userId || 'undefined'}: ${error.message}`);
+           const courseCheck = await db
+             .select()
+             .from(courses)
+             .where(eq(courses.id, courseId))
+             .limit(1);
 
-         console.error('💥 Error during enrollment:', error);
-         console.error('📊 Error details:', {
-           message: error.message,
-           stack: error.stack,
-           userId: req.body.userId,
+           logger.info('📚 Course check result:', courseCheck);
+
+           if (courseCheck.length === 0) {
+             span.setAttributes({
+               'enrollment.validation.course_exists': false,
+               'enrollment.validation.result': 'failed',
+               'enrollment.error': 'course_not_found',
+             });
+             console.error('❌ Course not found:', courseId);
+             res
+               .status(404)
+               .json({ error: `Course with id ${courseId} not found` });
+             return;
+           }
+
+           // Add course details to span
+           const course = courseCheck[0];
+           span.setAttributes({
+             'enrollment.validation.course_exists': true,
+             'enrollment.course.title': course.title,
+             'enrollment.course.category': course.category || 'unknown',
+             'enrollment.course.level': course.level || 'unknown',
+             'enrollment.course.instructor_id':
+               course.instructorId || 'unknown',
+           });
+
+           logger.info(
+             logger.fmt`Course found: "${course.title}" (${course.category})`
+           );
+
+           // Third: Validate user ID is provided
+           if (!userId) {
+             span.setAttributes({
+               'enrollment.validation.user_id': 'missing',
+               'enrollment.validation.result': 'failed',
+               'enrollment.error': 'user_id_missing',
+             });
+             console.error('❌ User ID is missing');
+             throw new Error('User ID is missing');
+           }
+
+           // Add final validation success attributes
+           span.setAttributes({
+             'enrollment.validation.user_id': 'provided',
+             'enrollment.validation.result': 'passed',
+             'enrollment.process.success': true,
+           });
+
+           logger.info(
+             logger.fmt`Enrollment validation successful for user ${userId} in course "${course.title}"`
+           );
+
+           console.log('✅ All validation successful, enrollment approved');
+           res.json({
+             success: true,
+             message: 'Enrollment validation successful',
+             courseId,
+             userId,
+           });
+         }
+       );
+     } catch (error: any) {
+       Sentry.captureException(error, {
+         tags: {
+           operation: 'enrollment.create.backend',
+           course_id: req.body.courseId || 'undefined',
+           user_id: req.body.userId || 'undefined',
+         },
+         extra: {
+           requestBody: req.body,
            courseId: req.body.courseId,
-         });
-         throw new Error('Failed to enroll in course');
-       }
-     });
-     ```
+           userId: req.body.userId,
+           hasUserId: !!req.body.userId,
+           hasCourseId: !!req.body.courseId,
+         },
+       });
 
-  4. **Test Enrollment Tracing**
+       logger.error(
+         logger.fmt`Enrollment error for course ${req.body.courseId || 'undefined'}, user ${req.body.userId || 'undefined'}: ${error.message}`
+       );
 
-     Try enrolling in courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your enrollment-related spans using the `enrollment.create.server` value.
+       console.error('💥 Error during enrollment:', error);
+       console.error('📊 Error details:', {
+         message: error.message,
+         stack: error.stack,
+         userId: req.body.userId,
+         courseId: req.body.courseId,
+       });
+       throw new Error('Failed to enroll in course');
+     }
+   });
+   ```
 
-     <ScaledImage src="/assets/img/m3-trace-explorer-be.png" alt="Trace Explorer BE" size={100} />
+4. **Test Enrollment Tracing**
 
-  5. **Examine the Trace**
+   Try enrolling in courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your enrollment-related spans using the `enrollment.create.server` value.
 
-     <ScaledImage src="/assets/img/m3-trace-waterfall-be.png" alt="Trace Waterfall" />
+   <ScaledImage
+     src="/assets/img/m3-trace-explorer-be.png"
+     alt="Trace Explorer BE"
+     size={100}
+   />
 
-  6. **Examine the Logs**
+5. **Examine the Trace**
 
-     Check the **Explore > Logs** tab for the log entries created by `logger.info` and `logger.error` calls.
+   <ScaledImage
+     src="/assets/img/m3-trace-waterfall-be.png"
+     alt="Trace Waterfall"
+   />
 
-     <ScaledImage src="/assets/img/m3-logs-be.png" alt="Logs" />
+6. **Examine the Logs**
+
+   Check the **Explore > Logs** tab for the log entries created by `logger.info` and `logger.error` calls.
+
+   <ScaledImage src="/assets/img/m3-logs-be.png" alt="Logs" />
 
 </Steps>
 
@@ -253,7 +281,7 @@ When we look now, we can see that the User ID is not being passed to the backend
 
 ## Fixing the Issue
 
-The fix for this is simple - need to update the frontend client to successfully pass the userId to the backend as well. 
+The fix for this is simple - need to update the frontend client to successfully pass the userId to the backend as well.
 
 <Steps>
   1. **Update Frontend to Include User ID**
@@ -278,6 +306,10 @@ The fix for this is simple - need to update the frontend client to successfully 
 
 </Steps>
 
-Once this change is made, submit your enrollment again and you'll see successful enrollment of your courses! 
+Once this change is made, submit your enrollment again and you'll see successful enrollment of your courses!
 
-<ScaledImage src="/assets/img/m3-enroll-success.png" alt="Enroll Success" size={100} />
+<ScaledImage
+  src="/assets/img/m3-enroll-success.png"
+  alt="Enroll Success"
+  size={100}
+/>
