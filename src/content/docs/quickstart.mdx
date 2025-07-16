@@ -25,10 +25,12 @@ We recommend setting up two separate projects in your Sentry account: one for th
 ## Setup Instructions
 
 <Steps>
-  1. **Clone the repository**
+  1. **Fork the repository**
+
+     Go to [https://github.com/getsentry/sentry-academy-ai-workshop](https://github.com/getsentry/sentry-academy-ai-workshop) and click the "Fork" button in the top right. Then, clone your fork:
 
      ```bash
-     git clone https://github.com/getsentry/sentry-academy-ai-workshop
+     git clone https://github.com/<your-username>/sentry-academy-ai-workshop.git
      ```
 
 2.  **Navigate to the project directory**
@@ -53,7 +55,7 @@ We recommend setting up two separate projects in your Sentry account: one for th
 
 5.  **Database Setup**
 
-    We'll be using [NeonDB](https://neon.new/) for this workshop, so we need to set up the database. Navigate to the `apps/server` directory and run the following commands:
+    We'll be using [NeonDB](https://neon.new/) for this workshop, so we need to set up the database. Navigate to the `apps/server` directory and run the following commands and select the defaults when prompted:
 
     ```bash
     pnpx neondb
@@ -67,9 +69,10 @@ We recommend setting up two separate projects in your Sentry account: one for th
     pnpm db:seed
     ```
 
-7.  **Start the Project**
+7.  **Start the Project (from the root)**
 
     ```bash
+    cd ../..
     pnpm dev
     ```
 

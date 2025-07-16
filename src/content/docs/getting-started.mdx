@@ -44,7 +44,7 @@ Select `React` and `Node.js` as the platforms respectively.
    ```
 2. **Initialize Sentry**
 
-   Create `./apps/frontend/src/instrument.ts`:
+   Create `./apps/frontend/src/instrument.ts` with the following content:
 
    ```js
    import * as Sentry from "@sentry/react";
@@ -78,7 +78,7 @@ Select `React` and `Node.js` as the platforms respectively.
 3. **Import and update your `main.tsx` entry point**
 
    ```js
-   import './instrument.js';
+   import './instrument.ts';
    import { createRoot } from 'react-dom/client';
    import * as Sentry from '@sentry/react';
    import App from './App.tsx';
@@ -95,7 +95,7 @@ Select `React` and `Node.js` as the platforms respectively.
    );
    ```
 
-4. **Create your ErrorBoundary**
+4. **Create your ErrorBoundary (in the /components root)**
 
    Create `./apps/frontend/src/components/ErrorBoundary.tsx`:
 
@@ -247,7 +247,7 @@ Select `React` and `Node.js` as the platforms respectively.
    - Select `Yes` if you get notified about uncommited files
    - Select `Sentry SaaS` when you get asked about what type of Sentry account you have
    - Select `Yes` if you already have a Sentry account
-   - This will open a browser window that lets you select your organization and project
+   - This will open a browser window that lets you select your organization and (frontend) project
    - Once you do, you're back to the terminal and you'll be prompted about the bundler, so select `Vite`
    - Select `PNPM` as the package manager
    - Select `No` when asked about using a CI/CD tool
@@ -272,7 +272,7 @@ These configurations will setup your React frontend to leverage all of Sentry's 
 
 2. **Configure Sentry in your Node.js Server**
 
-   Create `instrument.ts` in your server directory:
+   Create `./apps/server/instrument.ts` with the following content:
 
    ```js
    import * as Sentry from '@sentry/node';
@@ -287,7 +287,7 @@ These configurations will setup your React frontend to leverage all of Sentry's 
    });
    ```
 
-3. **Add instrument.ts to your server entry point - index.ts**
+3. **Import and update your `index.ts` entry point**
 
    ```js
    import './instrument';
@@ -310,9 +310,10 @@ These configurations will setup your React frontend to leverage all of Sentry's 
 
 With these configurations in place, you've now got Sentry setup to monitor your application across both the frontend and server side implementations.
 
-If you are running your application currently, it might be a good idea to toss a restart on it after all of these configurations.
+If you are currently running your application, it might be a good idea to toss a restart on it (from the root) after all of these configurations.
 
 ```bash
+cd ../..
 pnpm dev
 ```
 
