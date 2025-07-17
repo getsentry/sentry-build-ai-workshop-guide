@@ -41,7 +41,7 @@ export default defineConfig({
             },
             {
               label: 'Debugging AI with Sentry Agent Monitoring',
-              slug: 'debugging-enrollments',
+              slug: 'debugging-ai-agent-monitoring',
             },
             {
               label: 'Tracing for Database queries',
