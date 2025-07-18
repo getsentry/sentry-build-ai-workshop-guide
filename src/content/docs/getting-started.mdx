@@ -45,7 +45,7 @@ Select `React` and `Node.js` as the platforms respectively.
 
 2. **Initialize Sentry**
 
-   Create `./apps/frontend/src/instrument.ts`:
+   Create `./apps/frontend/src/instrument.ts` with the following content:
 
    ```js
    import * as Sentry from '@sentry/react';
@@ -84,7 +84,7 @@ Select `React` and `Node.js` as the platforms respectively.
 3. **Import and update your `main.tsx` entry point**
 
    ```js
-   import './instrument.js';
+   import './instrument.ts';
    import { createRoot } from 'react-dom/client';
    import * as Sentry from '@sentry/react';
    import App from './App.tsx';
@@ -101,7 +101,7 @@ Select `React` and `Node.js` as the platforms respectively.
    );
    ```
 
-4. **Create your ErrorBoundary**
+4. **Create your ErrorBoundary (in the /components root)**
 
    Create `./apps/frontend/src/components/ErrorBoundary.tsx`:
 
@@ -287,14 +287,14 @@ Select `React` and `Node.js` as the platforms respectively.
    We can use Sentry's wizard to help us setup the Vite plugin. The Vite plugin takes care of the sourcemaps for us.
 
    ```bash
-   cd apps/frontend && pnpx @sentry/wizard@latest -i sourcemaps
+   cd ../frontend && pnpx @sentry/wizard@latest -i sourcemaps
    ```
 
    This will trigger a series of prompts:
    - Select `Yes` if you get notified about uncommited files
    - Select `Sentry SaaS` when you get asked about what type of Sentry account you have
    - Select `Yes` if you already have a Sentry account
-   - This will open a browser window that lets you select your organization and project
+   - This will open a browser window that lets you select your organization and (frontend) project
    - Once you do, you're back to the terminal and you'll be prompted about the bundler, so select `Vite`
    - Select `PNPM` as the package manager
    - Select `No` when asked about using a CI/CD tool
@@ -319,7 +319,7 @@ These configurations will setup your React frontend to leverage all of Sentry's 
 
 2. **Configure Sentry in your Node.js Server**
 
-   Create `instrument.ts` in your server directory:
+   Create `./apps/server/instrument.ts` with the following content:
 
    ```js
    import * as Sentry from '@sentry/node';
@@ -334,7 +334,7 @@ These configurations will setup your React frontend to leverage all of Sentry's 
    });
    ```
 
-3. **Add instrument.ts to your server entry point - index.ts**
+3. **Import and update your `index.ts` entry point**
 
    ```js
    import './instrument';
@@ -348,18 +348,32 @@ These configurations will setup your React frontend to leverage all of Sentry's 
 4. **Use Sentry's Wizard again to setup sourcemaps in the server project**
 
    ```bash
-   cd apps/server && pnpx @sentry/wizard@latest -i sourcemaps
+   cd ../server && pnpx @sentry/wizard@latest -i sourcemaps
    ```
 
    The prompts will be the same, with the only difference this time being that we'll select `esbuild` instead of `Vite`.
+
+   Be sure to add the generated `sentryEsbuildPlugin` in the plugins array of the build configuration in `apps/server/build.js`
+
+   ```js
+   const { sentryEsbuildPlugin } = require("@sentry/esbuild-plugin");
+
+   require("esbuild").build({
+     sourcemap: true, // Source map generation must be turned on
+     plugins: [
+       // Put the Sentry esbuild plugin here after all other plugins
+     ],
+   });
+   ```
 
 </Steps>
 
 With these configurations in place, you've now got Sentry setup to monitor your application across both the frontend and server side implementations.
 
-If you are running your application currently, it might be a good idea to toss a restart on it after all of these configurations.
+If you are currently running your application, it might be a good idea to toss a restart on it (from the root) after all of these configurations.
 
 ```bash
+cd ../..
 pnpm dev
 ```
 
@@ -372,7 +386,7 @@ Once that's loaded, you can browse to http://localhost:5173 to view Sentry Acade
 Now we need to ensure that Sentry and Github are properly configured so that we can use Seer. This way Seer will have the full context of our code base and will be able to provide us with the best possible suggestions.
 We can even have it open PR's for us once it's determined root causes and applied fixes of errors found in Sentry.
 
-<ScaledImage src="/assets/img/GH-Integration.png" alt="Academy" size={100} />
+<ScaledImage src="/assets/img/GH-Integration.png" alt="GitHub" size={100} />
 
 <Steps>
 
@@ -389,10 +403,13 @@ We can even have it open PR's for us once it's determined root causes and applie
 
 3. Select which repositories Sentry should have access to (or select all repositories).
 
-4. You should then be redirected back to the Sentry Integrations page.
+4. You should then be redirected back to the Sentry Integrations page. You may see a flow to choose the repo or organization to integrate with.
 
 5. On your new GitHub instance in Sentry, click "Configure".
 
 </Steps>
 
 All of your repositories will be added by default, you just have to refresh your screen. To only add select repositories, choose them from the dropdown list. Make sure you have given Sentry access to these repositories in GitHub in the previous steps.
+To be sure we'll double check our Project ➡️ Settings ➡️ Seer to confirm our repo is preset in the list.
+
+<ScaledImage src="/assets/img/seer-project-settings.png" alt="Seer Settings" size={100} />
