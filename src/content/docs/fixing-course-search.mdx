@@ -1,6 +1,6 @@
 ---
 title: Fixing Academy Course Search
-description: Learn how to use Sentry's Tracing and Logs to troubleshoot issues with your course search
+description: Learn how to use Sentry's Seer AI and MCP Server to automatically analyze and fix course search issues
 ---
 
 import { Steps } from '@astrojs/starlight/components';
@@ -10,271 +10,159 @@ Now that we're able to login, naturally the next thing we'd want to do is be abl
 
 Well, clearly not - because its broken!
 
-<ScaledImage src="/assets/img/broken-search.webp" alt="Broken Course Search" />
+<ScaledImage src="/assets/img/broken-search.webp" alt="Broken Course Search" size={85} />
+<ScaledImage src="/assets/img/m2-issues.png" alt="Module 2 Issues" size={100} />
 
-We're seeing the error pop up in Sentry, but how can we use [**Tracing**](https://docs.sentry.io/concepts/key-terms/tracing/distributed-tracing/#traces-transactions-and-spans) and [**Logs**](https://docs.sentry.io/platforms/javascript/guides/react/logs/) to help troubleshoot the issue quicker?
-
-<ScaledImage src="/assets/img/m2-issues.png" alt="Modul 2 Issues" size={100} />
+We're seeing the error pop up in Sentry, but how can we use [**Seer**](https://docs.sentry.io/product/ai-in-sentry/seer/) and the [**Sentry MCP server**](https://docs.sentry.io/product/sentry-mcp) to help analyze and fix the issue quicker?
 
 ## Learning Objectives
 
 By the end of this module, you will:
 
-- Create custom spans to track the course search flow
-- Use **Trace Explorer** to search for specific spans that match issues in your environment
-- Compare values across spans to understand where its breaking in the application
-- Extend our logs to include context around the search issues in the application
+- Use **Seer**'s AI-powered debugging to automatically analyze and diagnose errors
+- Leverage **automated fix suggestions** to resolve issues faster than manual debugging
+- See how **AI can generate pull requests** with the fixes needed to resolve the issue
+- Use the **Sentry MCP Server** to bring real-time Sentry context into your development environment
+- Access **live issue data** and **Seer analysis** directly from your IDE or AI agentic workflow
 
-## Frontend Implementation
+### How Sentry Seer and MCP Will Solve This Problem
 
-Let's start by instrumenting the frontend search functionality to track search requests and parameters being sent to the backend.
+Sentry Seer uses advanced AI to automatically analyze your application's errors, traces, and logs to identify root causes and suggest fixes. For our course search problem, Seer will:
+
+1. **Intelligent Error Analysis**: Seer will examine the error context and understand what's going wrong in your application
+2. **Full-Stack Correlation**: By analyzing traces and logs across your frontend and backend, Seer can see the complete picture of what's happening
+3. **Automatic Root Cause Detection**: Seer will identify the exact issue causing the search to fail
+4. **Smart Fix Suggestions**: AI will provide the exact code changes needed to resolve the problem
+5. **Automated Resolution**: Seer can even generate pull requests with the fixes, saving you time and effort
+
+### Enhanced Debugging with Sentry MCP Server
+
+The [Sentry MCP Server](https://docs.sentry.io/product/sentry-mcp/) provides secure connectivity between your development environment and Sentry's rich debugging data. With MCP integration, you can:
+
+- **Access Real-Time Context**: Bring live Sentry issues, traces, and logs directly into your IDE or AI Agentic workflow
+- **Invoke Seer Remotely**: Trigger Seer analysis and get fix recommendations without leaving your development environment
+- **Search Across Projects**: Query your entire Sentry organization for related issues and patterns
+- **Streamlined Workflow**: Eliminate context switching between your code editor and Sentry dashboard
+
+## Setting Up Sentry MCP Server
+
+Before we dive into using Seer to analyze our course search issue, let's set up the Sentry MCP Server to enable seamless integration with your development environment.
 
 <Steps>
-  1. **Add Sentry Import to Frontend API Service**
+  1. **Configure MCP in Your IDE**
 
-     Navigate to the `/apps/frontend/src/services/api.ts` file and add the Sentry import at the top:
+     Install the Sentry MCP integration in your IDE (we'll be using Cursor) to enable direct communication with Sentry's debugging data and Seer analysis.
+     - Visit Cursor ➡️ Settings ➡️ Tools & Integrations ➡️ MCP Tools
+     - Select "Add Custom MCP" and add: 
 
-     ```tsx
-     import * as Sentry from '@sentry/react';
+     ```bash
+      {
+        "mcpServers": {
+          "sentry": {
+            "url": "https://mcp.sentry.dev/mcp"
+          }
+        }
+      }
      ```
+     
+     Once everything is complete, you should see a little green light below the icon in the MCP tools list indicating 👍
+     You may need to choose something else from the left menu, then return here to confirm. Note the tool calls we now have access to. 
+     
+     <ScaledImage src="/assets/img/cursor_mcp.png" alt="Sentry MCP Setup" size={100} /> 
 
-2. **Set Up Frontend Search Logging**
+  2. **Authenticate with Sentry**
 
-   Add the logger destructuring after your import to access Sentry's logging functionality:
+     If you've used the above configuration, you'll be automatically authenticated with OAuth.
 
-   ```tsx
-   const { logger } = Sentry;
-   ```
-
-3. **Replace the Complete Search Courses Method**
-
-   Replace the `search.courses` method with this instrumented version:
-
-   ```tsx
-   search: {
-     courses: (query: string) =>
-       Sentry.startSpan(
-         {
-           name: 'search.courses.frontend',
-           op: 'http.client',
-           attributes: {
-             'search.query': query,
-             'http.url': `/search/courses?query=${encodeURIComponent(query)}`,
-           },
-         },
-         () => {
-           logger.info(logger.fmt`Searching courses with query: ${query}`);
-           return fetchApi<any[]>(`/search/courses?query=${encodeURIComponent(query)}`);
-         }
-       ),
-   },
-   ```
-
-4. **Test Search Tracing**
-
-   Try searching for courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your search-related spans using the `search.courses.frontend` value.
-
-   <ScaledImage
-     src="/assets/img/m2-trace-explorer-fe.png"
-     alt="Trace Explorer FE"
-     size={100}
-   />
-
-5. **Examine the Trace**
-
-   Clicking into one of the spans will show you the trace waterfall where you can examine the properties of any of the spans submitted.
-
-   <ScaledImage
-     src="/assets/img/m2-trace-waterfall-fe.png"
-     alt="Trace Waterfall"
-   />
-
-6. **Examine the Logs**
-
-   Check the **Explore > Logs** tab for the log entries created by `logger.info` and `logger.error` calls.
-
-   <ScaledImage src="/assets/img/m2-logs-fe.png" alt="Logs" />
+     {/* TODO: show alternative methods or Sentry web tool */}
 
 </Steps>
 
-## Backend Implementation
+## Using Seer to Analyze the Course Search Issue
 
-Now let's instrument the backend search functionality to trace server-side processing and identify the parameter mismatch issue.
+Now that we have MCP set up, let's use Seer to automatically analyze and fix our course search problem.
+We can see in the configuration the available tool calls we can utilize in Cursor's chat window.
 
 <Steps>
-  1. **Add Sentry Import to Backend Search Routes**
+  1. **Query Sentry Issues via MCP**
 
-     Navigate to the `/apps/server/src/modules/search/routes.ts` file and add the Sentry import at the top:
+     In your IDE's AI chat interface, use the MCP connection to query Sentry about the course search issues:
 
-     ```tsx
-     import * as Sentry from '@sentry/node';
+     ```
+     Find project <you-project-name> in Sentry
      ```
 
-2. **Set Up Backend Search Logging**
+     The MCP server will fetch live issue data from Sentry and present it directly in your development environment.
 
-   Add the logger destructuring after your import:
+  2. **Trigger Seer Analysis**
 
-   ```tsx
-   const { logger } = Sentry;
-   ```
+     Ask Seer to perform a root cause analysis on the search issues:
 
-3. **Replace the Complete Search Route**
+     ```
+     Use Sentry Seer to analyze the root cause of the course search failures
+     ```
 
-   Replace the entire `searchRoutes.get('/search/courses'` route with this instrumented version:
+     Seer will automatically:
+     - Examine error traces across frontend and backend
+     - Analyze request/response patterns
+     - Identify parameter mismatches
+     - Correlate timing and performance data
 
-   ```tsx
-   searchRoutes.get('/search/courses', async (req, res) => {
-     try {
-       const { q } = req.query;
+  3. **Review Seer's Findings**
 
-       await Sentry.startSpan(
-         {
-           name: 'search.courses.server',
-           op: 'db.search',
-           attributes: {
-             'search.query': typeof q === 'string' ? q : String(q || ''),
-           },
-         },
-         async (span) => {
-           logger.info(logger.fmt`Backend received query parameters: ${q}`);
+     Seer will identify that the frontend is sending a `query` parameter while the backend expects a `q` parameter. The analysis will include:
+     
+     - **Root Cause**: Parameter name mismatch between frontend (`query`) and backend (`q`)
+     - **Error Location**: Frontend API service and backend search route
+     - **Impact**: 100% failure rate for course search functionality
+     - **Confidence**: High (based on consistent error patterns)
 
-           // Add query validation attributes
-           span.setAttributes({
-             'search.query_provided': !!q,
-           });
+  4. **Apply Seer's Fix Suggestions**
 
-           // Realistic API validation - backend expects 'q' parameter
-           if (!q || typeof q !== 'string') {
-             // This will throw when frontend sends 'query' instead of 'q'
-             throw new Error(
-               `Missing required parameter 'q'. Received parameters: ${Object.keys(req.query).join(', ')}`
-             );
-           }
+     Seer will provide the exact code changes needed. You can either:
+     
+     **Option A**: Apply the fix manually based on Seer's suggestions
+     
+     **Option B**: Let Seer generate a pull request with the fix
 
-           logger.info(logger.fmt`Backend searching for: "${q}"`);
-
-           // Simple search implementation
-           const results = await db
-             .select({
-               id: courses.id,
-               title: courses.title,
-               slug: courses.slug,
-               description: courses.description,
-               instructor: users.name,
-               thumbnail: courses.thumbnail,
-               category: courses.category,
-               level: courses.level,
-               duration: courses.duration,
-               price: courses.price,
-               rating: courses.rating,
-               reviewCount: courses.reviewCount,
-             })
-             .from(courses)
-             .leftJoin(users, eq(courses.instructorId, users.id))
-             .where(
-               or(
-                 ilike(courses.title, `%${q}%`),
-                 ilike(courses.description, `%${q}%`)
-               )
-             )
-             .orderBy(courses.rating)
-             .limit(50);
-
-           // Add search results attributes
-           span.setAttributes({
-             'search.results_count': results.length,
-             'search.results_found': results.length > 0,
-             'search.query_successful': true,
-           });
-
-           logger.info(
-             logger.fmt`Backend found ${results.length} results for query: "${q}"`
-           );
-
-           const responseData = {
-             results,
-             total: results.length,
-             query: q,
-           };
-
-           res.json(responseData);
-         }
-       );
-     } catch (error: any) {
-       Sentry.captureException(error, {
-         tags: {
-           operation: 'search.courses.server',
-           query: (req.query.q as string) || 'undefined',
-         },
-         extra: {
-           queryParameters: req.query,
-           searchQuery: req.query.q,
-           receivedParameters: Object.keys(req.query),
-           requestUrl: req.url,
-         },
-       });
-
-       logger.error(
-         logger.fmt`Search API Error for query "${req.query.q}": ${error.message}`
-       );
-       throw new Error(error.message);
-     }
-   });
-   ```
-
-4. **Test Search Tracing**
-
-   Try searching for courses again. Navigate to **Explore > Traces** in Sentry's left navigation menu, and search using the `span.description` filter to find your search-related spans using the `search.courses.server` value.
-
-   <ScaledImage
-     src="/assets/img/m2-trace-explorer-be.png"
-     alt="Trace Explorer BE"
-     size={100}
-   />
-
-5. **Examine the Trace**
-
-   Clicking into one of the spans will show you the trace waterfall where you can examine the properties of any of the spans submitted.
-
-   <ScaledImage
-     src="/assets/img/m2-trace-waterfall-be.png"
-     alt="Trace Waterfall"
-   />
-
-6. **Examine the Logs**
-
-   Check the **Explore > Logs** tab for the log entries created by `logger.info` and `logger.error` calls.
-
-   <ScaledImage src="/assets/img/m2-logs-be.png" alt="Logs" />
+     For Option B, simply ask:
+     ```
+     Generate a pull request to fix the parameter mismatch issue
+     ```
 
 </Steps>
 
-## Analyzing the Issue
+## Automated Fix with Seer
 
-When we explore these traces and logs, we can see an inconsistency - the frontend is sending a `query` parameter, but the backend is expecting a `q` parameter instead.
-
-## Fixing the Issue
-
-The issue is a parameter name mismatch between the frontend and backend! The frontend is sending `?query=` but the server expects `?q=`.
+Seer's automated analysis reveals the issue and provides the exact fix needed:
 
 <Steps>
-  1. **Update the Frontend Parameter Name**
+  1. **Seer's Analysis Results**
 
-     In the frontend search implementation, replace:
-
-     ```tsx
-     () => fetchApi<any[]>(`/search/courses?query=${encodeURIComponent(query)}`)
-     ```
-
-     With:
+     Seer identifies the parameter mismatch and suggests updating the frontend to use `q` instead of `query`:
 
      ```tsx
-     () => fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`)
+     // Current (broken) code:
+     fetchApi<any[]>(`/search/courses?query=${encodeURIComponent(query)}`)
+     
+     // Seer's suggested fix:
+     fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`)
      ```
 
-     This will ensure the frontend sends the parameter name that the backend expects.
+  2. **Apply the Fix**
 
-     Try searching for courses again, and if you navigate to **Explore > Traces** on left navigation menu, you'll be able to search using the `span.description` filter and find your search-related spans.
+     Navigate to `/apps/frontend/src/services/api.ts` and update the search method:
+
+     ```tsx
+     search: {
+       courses: (query: string) =>
+         fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`),
+     },
+     ```
+
+  3. **Verify the Fix**
+
+     Test the course search functionality again. Seer will continue monitoring and confirm that the issue has been resolved.
 
 </Steps>
 
@@ -285,3 +173,12 @@ Once this is complete, give search a try again and you should see your results!
   alt="Search Fixed"
   size={100}
 />
+
+## Next Steps with Seer and MCP
+
+Now that you've experienced how Seer and the MCP server can automatically diagnose and fix issues:
+
+- **Set up automated monitoring** to catch similar issues before they impact users
+- **Configure Seer alerts** to get proactive fix suggestions for new errors
+- **Integrate MCP workflows** into your daily development process for faster debugging
+- **Explore Seer's advanced features** like performance optimization suggestions and security vulnerability detection
