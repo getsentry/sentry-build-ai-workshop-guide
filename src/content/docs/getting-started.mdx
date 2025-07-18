@@ -42,14 +42,20 @@ Select `React` and `Node.js` as the platforms respectively.
    ```bash
    pnpm add @sentry/react --filter frontend
    ```
+
 2. **Initialize Sentry**
 
    Create `./apps/frontend/src/instrument.ts` with the following content:
 
    ```js
-   import * as Sentry from "@sentry/react";
-   import { useEffect } from "react";
-   import { useLocation, useNavigationType, createRoutesFromChildren, matchRoutes } from "react-router-dom";
+   import * as Sentry from '@sentry/react';
+   import { useEffect } from 'react';
+   import {
+     useLocation,
+     useNavigationType,
+     createRoutesFromChildren,
+     matchRoutes,
+   } from 'react-router-dom';
 
    Sentry.init({
      dsn: '<Your Sentry DSN>',
@@ -58,18 +64,18 @@ Select `React` and `Node.js` as the platforms respectively.
        Sentry.browserTracingIntegration(),
        Sentry.replayIntegration(),
        Sentry.reactRouterV7BrowserTracingIntegration({
-           useEffect: useEffect,
-           useLocation,
-           useNavigationType,
-           createRoutesFromChildren,
-           matchRoutes,
-         }),
+         useEffect: useEffect,
+         useLocation,
+         useNavigationType,
+         createRoutesFromChildren,
+         matchRoutes,
+       }),
      ],
      _experiments: {
        enableLogs: true,
      },
      tracesSampleRate: 1.0,
-     tracePropagationTargets: ["localhost:3001"],
+     tracePropagationTargets: ['localhost:3001'],
      replaysSessionSampleRate: 1.0,
      replaysOnErrorSampleRate: 1.0,
    });
@@ -118,7 +124,9 @@ Select `React` and `Node.js` as the platforms respectively.
        return (
          <div className="min-h-screen flex items-center justify-center bg-gray-50">
            <div className="text-center">
-             <h1 className="text-4xl font-bold text-red-600 mb-4">{error.status}</h1>
+             <h1 className="text-4xl font-bold text-red-600 mb-4">
+               {error.status}
+             </h1>
              <p className="text-xl text-gray-600 mb-4">{error.statusText}</p>
              <p className="text-gray-500">{error.data}</p>
            </div>
@@ -129,7 +137,9 @@ Select `React` and `Node.js` as the platforms respectively.
      return (
        <div className="min-h-screen flex items-center justify-center bg-gray-50">
          <div className="text-center">
-           <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong</h1>
+           <h1 className="text-2xl font-bold text-red-600 mb-4">
+             Something went wrong
+           </h1>
            <p className="text-gray-600 mb-4">
              {error instanceof Error ? error.message : 'Unknown error occurred'}
            </p>
@@ -150,89 +160,126 @@ Select `React` and `Node.js` as the platforms respectively.
 5. **Update your `App.tsx` to include Sentry Error Boundary and React Router**
 
    ```tsx
-    // previous imports
+   // previous imports
 
-    import * as Sentry from '@sentry/react';
-    import ErrorBoundary from './components/ErrorBoundary';
+   import * as Sentry from '@sentry/react';
+   import ErrorBoundary from './components/ErrorBoundary';
 
-    const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
+   const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
-    // Protected route component
-    const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-      const { isAuthenticated, isLoading } = useAuth();
+   // Protected route component
+   const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+     children,
+   }) => {
+     const { isAuthenticated, isLoading } = useAuth();
 
-      if (isLoading) {
-        return <div>Loading...</div>;
-      }
+     if (isLoading) {
+       return <div>Loading...</div>;
+     }
 
-      if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-      }
+     if (!isAuthenticated) {
+       return <Navigate to="/login" replace />;
+     }
 
-      return <>{children}</>;
-    };
+     return <>{children}</>;
+   };
 
-    function App() {
-      return (
-        <AuthProvider>
-          <UserStateProvider>
-            <Router>
-              <SentryRoutes>
-                <Route path="/login" element={<LoginPage />} errorElement={<ErrorBoundary />} />
+   function App() {
+     return (
+       <AuthProvider>
+         <UserStateProvider>
+           <Router>
+             <SentryRoutes>
+               <Route
+                 path="/login"
+                 element={<LoginPage />}
+                 errorElement={<ErrorBoundary />}
+               />
 
-                <Route path="/" element={<MainLayout />}>
-                  <Route index element={
-                    <ProtectedRoute>
-                      <HomePage />
-                    </ProtectedRoute>
-                  } />
+               <Route path="/" element={<MainLayout />}>
+                 <Route
+                   index
+                   element={
+                     <ProtectedRoute>
+                       <HomePage />
+                     </ProtectedRoute>
+                   }
+                 />
 
-                  <Route path="courses" element={
-                    <ProtectedRoute>
-                      <CoursesPage />
-                    </ProtectedRoute>
-                  } errorElement={<ErrorBoundary />} />
+                 <Route
+                   path="courses"
+                   element={
+                     <ProtectedRoute>
+                       <CoursesPage />
+                     </ProtectedRoute>
+                   }
+                   errorElement={<ErrorBoundary />}
+                 />
 
-                  <Route path="courses/:courseId" element={
-                    <ProtectedRoute>
-                      <CourseDetailPage />
-                    </ProtectedRoute>
-                  } errorElement={<ErrorBoundary />} />
+                 <Route
+                   path="courses/:courseId"
+                   element={
+                     <ProtectedRoute>
+                       <CourseDetailPage />
+                     </ProtectedRoute>
+                   }
+                   errorElement={<ErrorBoundary />}
+                 />
 
-                  <Route path="my-courses" element={
-                    <ProtectedRoute>
-                      <MyCoursesPage />
-                    </ProtectedRoute>
-                  } errorElement={<ErrorBoundary />} />
+                 <Route
+                   path="my-courses"
+                   element={
+                     <ProtectedRoute>
+                       <MyCoursesPage />
+                     </ProtectedRoute>
+                   }
+                   errorElement={<ErrorBoundary />}
+                 />
 
-                  <Route path="favorites" element={
-                    <ProtectedRoute>
-                      <FavoritesPage />
-                    </ProtectedRoute>
-                  } errorElement={<ErrorBoundary />} />
+                 <Route
+                   path="favorites"
+                   element={
+                     <ProtectedRoute>
+                       <FavoritesPage />
+                     </ProtectedRoute>
+                   }
+                   errorElement={<ErrorBoundary />}
+                 />
 
-                  <Route path="lesson-plans" element={
-                    <ProtectedRoute>
-                      <LessonPlansPage />
-                    </ProtectedRoute>
-                  } errorElement={<ErrorBoundary />} />
+                 <Route
+                   path="lesson-plans"
+                   element={
+                     <ProtectedRoute>
+                       <LessonPlansPage />
+                     </ProtectedRoute>
+                   }
+                   errorElement={<ErrorBoundary />}
+                 />
 
-                  <Route path="profile" element={
-                    <ProtectedRoute>
-                      <ProfilePage />
-                    </ProtectedRoute>
-                  } errorElement={<ErrorBoundary />} />
-                </Route>
+                 <Route
+                   path="profile"
+                   element={
+                     <ProtectedRoute>
+                       <ProfilePage />
+                     </ProtectedRoute>
+                   }
+                   errorElement={<ErrorBoundary />}
+                 />
+               </Route>
 
-                <Route path="*" element={<Navigate to="/" replace />} errorElement={<ErrorBoundary />} />
-              </SentryRoutes>
-            </Router>
-          </UserStateProvider>
-        </AuthProvider>
-      );
-    }
+               <Route
+                 path="*"
+                 element={<Navigate to="/" replace />}
+                 errorElement={<ErrorBoundary />}
+               />
+             </SentryRoutes>
+           </Router>
+         </UserStateProvider>
+       </AuthProvider>
+     );
+   }
 
-    export default App;
+   export default App;
    ```
 
 6. **Setup the Vite plugin with Sentry's Wizard**
@@ -357,6 +404,8 @@ We can even have it open PR's for us once it's determined root causes and applie
 3. Select which repositories Sentry should have access to (or select all repositories).
 
 4. You should then be redirected back to the Sentry Integrations page. You may see a flow to choose the repo or organization to integrate with.
+
+5. On your new GitHub instance in Sentry, click "Configure".
 
 </Steps>
 
