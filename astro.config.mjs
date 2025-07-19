@@ -36,25 +36,17 @@ export default defineConfig({
               slug: 'troubleshooting-auth',
             },
             {
-              label: 'Solving Search with Seer and Sentry MCP',
+              label: 'Solving Broken Search (Sentry MCP, Seer)',
               slug: 'fixing-course-search',
             },
             {
-              label: 'Debugging AI with Sentry Agent Monitoring',
+              label: 'Debugging AI Implementations (AI Agentic Monitoring)',
               slug: 'debugging-ai-agent-monitoring',
             },
             {
-              label: 'Tracing for Database queries',
-              slug: 'database-queries',
-            },
-            {
-              label: 'Using Seer for PR Review',
-              slug: 'monitoring-critical-experiences',
-            },
-            {
-              label: 'Wrapping Up - Your Sentry Journey',
-              slug: 'wrapping-up',
-            },
+              label: 'Taking apart new features (Sentry PR Review)',
+              slug: 'new-feature-pr-review',
+            }
           ],
         },
         {
