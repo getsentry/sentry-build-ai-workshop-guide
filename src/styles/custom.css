@@ -1,6 +1,9 @@
 /* Import header styles */
 @import './header.css';
 
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
 :root {
   /* Sentry brand colors - dark mode is default */
   --sl-color-accent-low: #2b1e44;
@@ -32,6 +35,9 @@
   --sl-content-width: 65rem;
   --sl-sidebar-width: 18rem;
   --sl-font-size-sm: 0.95rem;
+
+  /* Font family */
+  --sl-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Light mode adjustments if needed */
@@ -48,67 +54,138 @@
   --sl-color-bg-inline-code: rgba(134, 97, 197, 0.1);
 }
 
+/* Global font styling */
+* {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-weight: 400 !important; /* Inter 18pt regular weight */
+  font-style: normal !important; /* Ensure no italic */
+}
+
 /* Enhance UI components to match Sentry's UI */
-.site-title {
-  font-weight: 600;
+.site-title,
+.sl-nav-logo,
+.sl-nav-logo span,
+.sl-nav-logo a,
+header .site-title,
+nav .site-title {
+  font-weight: 900 !important;
+  font-family: "Inter", sans-serif !important;
+  font-size: 18pt !important;
+}
+
+/* Make all headings black weight */
+h1, h2, h3, h4, h5, h6,
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4,
+.sl-markdown-content h5,
+.sl-markdown-content h6 {
+  font-weight: 900 !important;
+  font-family: "Inter", sans-serif !important;
 }
 
 /* Main page styles */
 [data-has-hero] .hero {
   padding: 5rem 0 6rem;
   background: linear-gradient(135deg, #1e1431 0%, #14101c 100%);
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  width: 100vw;
+  position: relative;
+}
+
+/* Container to center content within the full-width hero */
+[data-has-hero] .hero .sl-flex {
+  max-width: var(--sl-content-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+  transform: translateX(20px);
+}
+
+/* Move the hero image/logo to align with centered content */
+[data-has-hero] .hero .hero-image {
+  max-width: var(--sl-content-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: flex-start;
+  transform: translateX(-20px);
+}
+
+/* Alternative selector for the logo positioning */
+[data-has-hero] .hero img {
+  margin-left: 0;
+  margin-right: auto;
+  transform: translateX(-100px) scale(1.3);
 }
 
 [data-has-hero] .hero h1 {
   font-size: 5rem;
   max-width: 16ch;
-  margin: 0 auto 1rem;
+  margin: 0 0 1rem 0;
   line-height: 1;
   color: white;
-  text-align: center;
+  text-align: left;
+  font-weight: 900;
+  font-style: normal;
+  font-family: "Inter", sans-serif;
 }
 
 [data-has-hero] .hero .tagline {
   color: white;
   font-size: 1.4rem;
   max-width: 32ch;
-  margin: 0 auto 2rem;
+  margin: 0 0 2rem 0;
+  text-align: left;
+  font-weight: 400;
+  font-style: normal;
+  font-family: "Inter", sans-serif;
 }
 
-/* Hero action buttons styling - align with text and style as white rectangles */
+/* Hero action buttons styling - modern Sentry style */
 [data-has-hero] .hero .actions {
   display: flex;
   gap: 1rem;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  margin: 0 auto;
+  margin: 0;
 }
 
 [data-has-hero] .hero .actions a {
-  background-color: white;
-  color: black !important;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  padding: 1rem 2rem;
+  border-radius: 6px;
   font-weight: 600;
   text-decoration: none;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
+  font-size: 1rem;
+  border: 2px solid transparent;
 }
 
-[data-has-hero] .hero .actions a:hover {
-  background-color: #f2f2f2;
-}
-
-/* Remove default styling for minimal variant */
-[data-has-hero] .hero .actions a[data-variant='minimal'] {
+/* Primary button (Get Started) */
+[data-has-hero] .hero .actions a:first-child {
   background-color: white;
-  color: black !important;
-  border: none;
+  color: #1A0F2E !important;
 }
 
-[data-has-hero] .hero .actions a[data-variant='minimal']:hover {
-  background-color: #f2f2f2;
+[data-has-hero] .hero .actions a:first-child:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+}
+
+/* Secondary button (Sentry.io) */
+[data-has-hero] .hero .actions a:last-child {
+  background-color: transparent;
+  color: white !important;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-has-hero] .hero .actions a:last-child:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 /* Content wrapper */
