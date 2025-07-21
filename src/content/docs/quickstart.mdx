@@ -31,25 +31,25 @@ We recommend setting up two separate projects in your Sentry account: one for th
 
      Next, go to the settings of your forked repo, scroll all the way down to the Danger Zone, click "Leave fork network", and follow the prompts so you'll be nice and isolated.
 
-     Then, clone your fork:
+2.  **Then, clone your fork:**
 
      ```bash
      git clone https://github.com/<your-username>/sentry-academy-ai-workshop.git
      ```
 
-2.  **Navigate to the project directory**
+3.  **Navigate to the project directory**
 
     ```bash
     cd sentry-academy-ai-workshop
     ```
 
-3.  **Install dependencies with PNPM**
+4.  **Install dependencies with PNPM**
 
     ```bash
     pnpm i
     ```
 
-4.  **Set up environment variables**
+5.  **Set up environment variables**
 
     ```bash
     touch apps/server/.env
@@ -57,7 +57,7 @@ We recommend setting up two separate projects in your Sentry account: one for th
     cd apps/server
     ```
 
-5.  **Database Setup**
+6.  **Database Setup**
 
     We'll be using [NeonDB](https://neon.new/) for this workshop, so we need to set up the database. Navigate to the `apps/server` directory and run the following commands and select the defaults when prompted:
 
@@ -65,7 +65,7 @@ We recommend setting up two separate projects in your Sentry account: one for th
     pnpx neondb
     ```
 
-6.  **Seed the Database**
+7.  **Seed the Database**
 
     ```bash
     pnpm db:generate
@@ -73,14 +73,14 @@ We recommend setting up two separate projects in your Sentry account: one for th
     pnpm db:seed
     ```
 
-7.  **Start the Project (from the root)**
+8.  **Start the Project (from the root)**
 
     ```bash
     cd ../..
     pnpm dev
     ```
 
-8.  **Access the application project**
+9.  **Access the application project**
 
          The project will now be running at [http://localhost:5173](http://localhost:5173) with the backend API running on [http://localhost:3001](http://localhost:3001).
 
