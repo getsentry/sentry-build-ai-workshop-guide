@@ -1,0 +1,343 @@
+---
+title: Building Features with AI-Powered PR Review
+description: Learn how to implement new AI features and use Sentry's PR review functionality to ensure code quality and catch issues before deployment
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import ScaledImage from '../../components/ScaledImage.astro';
+
+Now that you've implemented AI monitoring in your application, let's take it a step further! We'll add a new AI-powered course creation feature to Sentry Academy, then use Sentry's brand new AI-powered PR review functionality to ensure our code is production-ready before merging.
+
+<ScaledImage
+  src="/assets/img/sentry-prevent-ai.png"
+  alt="Sentry Prevent AI in action on a GitHub pull request"
+/>
+
+Sentry recently released Prevent AI, which gives you AI-powered code review and test generation capabilities directly in your GitHub workflow. This feature gives you several new capabilities:
+
+* Direct integration with GitHub pull requests through the Seer by Sentry app
+* AI-powered code review that analyzes your changes and suggests improvements
+* Automatic test generation for uncovered code paths
+* Security vulnerability detection and performance optimization suggestions
+* Only runs when explicitly triggered, ensuring it doesn't interfere with your development flow
+
+## Learning Objectives
+
+By the end of this module, you will:
+
+- Implement a new AI feature using OpenAI function calling for course creation
+- Create a pull request for your new feature
+- Install and configure Sentry Prevent AI for automated PR review
+- Use AI-powered code review and test generation to improve code quality
+- Understand how to integrate AI development tools into your workflow
+
+Getting started with AI-powered PR review is straightforward. We need to...
+
+* Implement a new feature that adds value to our application
+* Create a pull request with our changes
+* Install the Seer by Sentry GitHub app and enable the necessary features
+* Test the AI review capabilities in action
+
+## Implementing the Course Creation AI Tool
+
+We already have a basic course creation feature in Sentry Academy, but let's enhance it with better OpenAI function calling and proper Sentry instrumentation.
+
+<Steps>
+  1. **Update the Course Creation API with Better Function Calling**
+
+     Navigate to `/apps/server/src/modules/ai/routes.ts` and enhance the existing course creation endpoint with structured function calling:
+
+     ```tsx
+     // Add this enhanced function calling definition
+     const tools = [
+       {
+         type: 'function' as const,
+         function: {
+           name: 'create_structured_course',
+           description: 'Create a comprehensive course with detailed modules and lessons',
+           parameters: {
+             type: 'object',
+             properties: {
+               title: { 
+                 type: 'string', 
+                 description: 'Engaging course title that clearly describes the learning outcome' 
+               },
+               description: { 
+                 type: 'string', 
+                 description: 'Comprehensive course description explaining what students will learn' 
+               },
+               category: { 
+                 type: 'string', 
+                 description: 'Course category (e.g., Programming, Design, Business)' 
+               },
+               estimatedHours: { 
+                 type: 'number', 
+                 description: 'Total estimated hours to complete the course' 
+               },
+               modules: {
+                 type: 'array',
+                 description: 'Array of course modules',
+                 items: {
+                   type: 'object',
+                   properties: {
+                     title: { type: 'string', description: 'Module title' },
+                     description: { type: 'string', description: 'Module overview' },
+                     lessons: {
+                       type: 'array',
+                       items: {
+                         type: 'object',
+                         properties: {
+                           title: { type: 'string', description: 'Lesson title' },
+                           objectives: { 
+                             type: 'array', 
+                             items: { type: 'string' },
+                             description: 'Learning objectives for this lesson'
+                           },
+                           estimatedMinutes: { type: 'number', description: 'Estimated completion time' }
+                         },
+                         required: ['title', 'objectives', 'estimatedMinutes']
+                       }
+                     }
+                   },
+                   required: ['title', 'description', 'lessons']
+                 }
+               }
+             },
+             required: ['title', 'description', 'category', 'estimatedHours', 'modules']
+           }
+         }
+       }
+     ];
+     ```
+
+  2. **Add Enhanced Sentry Instrumentation**
+
+     Update the existing course creation function to include better monitoring:
+
+     ```tsx
+     // In the same file, update the streamText call to include tools
+     const result = await streamText({
+       model: openai('gpt-4o-mini'),
+       experimental_telemetry: {
+         isEnabled: true,
+         functionId: 'generateEnhancedCourse',
+         metadata: {
+           userPrompt: prompt.substring(0, 100), // First 100 chars for debugging
+           requestId: crypto.randomUUID()
+         }
+       },
+       tools,
+       toolChoice: 'required',
+       messages: [
+         {
+           role: 'system',
+           content: 'You are an expert course creator. Create engaging, well-structured courses that provide clear learning outcomes.'
+         },
+         {
+           role: 'user',
+           content: `Create a comprehensive course about: ${prompt}`
+         }
+       ]
+     });
+     ```
+
+  3. **Test the Enhanced Course Creation**
+
+     Navigate to the Course Builder in Sentry Academy and create a new course with a prompt like:
+     
+     "Building scalable REST APIs with Node.js and TypeScript"
+
+     <ScaledImage src="/assets/img/enhanced-course-creation.png" alt="Enhanced Course Creation" size={75} />
+
+</Steps>
+
+## Creating a Pull Request for Code Review
+
+Now that we've enhanced our course creation feature, let's create a pull request to merge these improvements into the main branch.
+
+<Steps>
+  1. **Commit Your Changes**
+
+     First, stage and commit your enhanced course creation feature:
+
+     ```bash
+     git add apps/server/src/modules/ai/routes.ts
+     git commit -m "Enhance course creation with structured function calling and improved Sentry instrumentation"
+     ```
+
+  2. **Push to a Feature Branch**
+
+     Create and push a feature branch for our improvements:
+
+     ```bash
+     git checkout -b feature/enhanced-course-creation
+     git push -u origin feature/enhanced-course-creation
+     ```
+
+  3. **Open a Pull Request**
+
+     Navigate to your GitHub repository and create a new pull request from the `feature/enhanced-course-creation` branch to `main`. Include a detailed description of your changes:
+
+     ```markdown
+     ## Enhanced Course Creation with Better Function Calling
+     
+     This PR improves our AI course creation feature with:
+     - Structured OpenAI function calling with detailed schemas
+     - Enhanced Sentry instrumentation with metadata
+     - Better error handling and monitoring
+     - More comprehensive course structure generation
+     ```
+
+</Steps>
+
+## Setting Up Sentry Prevent AI
+
+Before we can use Sentry's AI-powered PR review, we need to install and configure the Sentry GitHub app.
+
+<Steps>
+  1. **Install the Seer by Sentry GitHub App**
+
+     Navigate to the [Seer by Sentry GitHub App](https://github.com/apps/seer-by-sentry) and install it on your repository. This app allows Sentry Prevent AI to analyze your pull requests and provide code insights.
+
+     <ScaledImage src="/assets/img/seer-app-install.png" alt="Installing Seer by Sentry App" size={75} />
+
+     If you're not an organization admin, copy the installation link and share it with your admin to install it.
+
+  2. **Enable AI Features in Sentry Organization Settings**
+
+     In your Sentry organization settings, ensure these two features are enabled:
+     - **Show Generative AI Features** 
+     - **Enable PR Review and Test Generation**
+
+     Navigate to your [organization settings](https://sentry.io/settings/organization/) and look for the AI features section.
+
+     <ScaledImage src="/assets/img/sentry-ai-settings.png" alt="Sentry AI Settings" size={75} />
+
+  3. **Verify Installation Success**
+
+     Once installed successfully, the Sentry app will have access to:
+     - Pull request metadata and descriptions
+     - File names and directory structures  
+     - Code diffs for analysis
+     - Repository information
+
+     You should see the Seer app listed in your GitHub repository's installed apps.
+
+</Steps>
+
+## Testing Sentry Prevent AI in Action
+
+Now let's see Sentry Prevent AI in action by requesting a code review of our enhanced course creation feature.
+
+<Steps>
+  1. **Request an AI Code Review**
+
+     In your pull request, add a comment with the following command:
+
+     ```
+     @sentry review
+     ```
+
+     <ScaledImage src="/assets/img/sentry-review-request.png" alt="Requesting Sentry Review" size={75} />
+
+     Sentry Prevent AI will acknowledge your request and begin analyzing your code changes. The AI will review:
+     - Code structure and implementation patterns
+     - Potential bugs or edge cases
+     - Security considerations for API endpoints
+     - Performance implications of function calling
+     - TypeScript usage and type safety
+
+  2. **Review AI-Generated Feedback**
+
+     The AI will add review comments directly to your pull request, providing specific suggestions such as:
+
+     <ScaledImage src="/assets/img/ai-review-comments.png" alt="AI Review Comments" size={75} />
+
+     Common suggestions might include:
+     - Adding input validation for the prompt parameter
+     - Implementing rate limiting for the OpenAI API calls
+     - Adding error handling for malformed function call responses
+     - Improving TypeScript interfaces for the course structure
+     - Adding timeout configurations for long-running AI requests
+
+  3. **Generate Comprehensive Tests**
+
+     Request AI-generated tests by commenting:
+
+     ```
+     @sentry generate-test
+     ```
+
+     <ScaledImage src="/assets/img/ai-test-generation.png" alt="AI Test Generation" size={75} />
+
+     Sentry Prevent AI will analyze your course creation feature and generate tests covering:
+     - Unit tests for the enhanced function calling logic
+     - Integration tests for the OpenAI API interaction
+     - Error handling scenarios (API failures, malformed responses)
+     - Performance tests for the enhanced telemetry
+     - Edge cases for various prompt inputs
+
+  4. **Review Generated Test Code**
+
+     The AI will provide a link to view the generated tests, which might include:
+
+     ```typescript
+     describe('Enhanced Course Creation', () => {
+       it('should create structured course with function calling', async () => {
+         // Test implementation for successful course creation
+       });
+       
+       it('should handle OpenAI API errors gracefully', async () => {
+         // Test error handling scenarios
+       });
+       
+       it('should validate input prompts properly', async () => {
+         // Test input validation
+       });
+     });
+     ```
+
+</Steps>
+
+## Understanding the Power of AI-Driven Development
+
+Sentry Prevent AI transforms how we approach code quality and testing by providing intelligent assistance throughout the development lifecycle:
+
+### Automatic Code Analysis
+- **Context-Aware Reviews**: Analyzes your specific changes in the context of your entire codebase
+- **Pattern Recognition**: Identifies potential issues based on common programming patterns and anti-patterns
+- **Security Scanning**: Detects potential security vulnerabilities in your code changes
+- **Performance Insights**: Suggests optimizations for better application performance
+
+### Intelligent Test Generation
+- **Coverage Gap Detection**: Identifies areas of your code that lack sufficient test coverage
+- **Framework Integration**: Works with existing testing frameworks like Jest, Vitest, and others
+- **Realistic Test Scenarios**: Generates tests that cover both happy path and edge cases
+- **Mock Generation**: Creates appropriate mocks for external dependencies and APIs
+
+### Development Workflow Integration
+- **Pull Request Focus**: Only analyzes code when you explicitly request it
+- **Privacy by Design**: Runs only when triggered, ensuring your development process isn't interrupted
+- **Team Collaboration**: Helps teams maintain consistent code quality standards
+- **Learning Tool**: Provides educational feedback to help developers improve their skills
+
+## Privacy and Security Best Practices
+
+When using Sentry Prevent AI, it's important to understand the data handling:
+
+- **Limited Data Sharing**: Only file names, code diffs, and PR descriptions are sent to AI providers
+- **Trigger-Based Operation**: The tool only runs on GitHub when you explicitly use `@sentry` commands
+- **Organization Control**: Administrators can enable or disable AI features at the organization level
+- **Transparent Process**: You can see exactly what data is being analyzed in each request
+
+## Summing Up AI-Powered PR Review
+
+AI-powered PR review with Sentry Prevent AI gives you a comprehensive approach to maintaining code quality and accelerating development. You can use it to:
+
+- **Catch Issues Early**: Identify potential problems before they reach production
+- **Improve Code Quality**: Get specific suggestions for better implementations
+- **Enhance Test Coverage**: Generate comprehensive tests for new features
+- **Learn Best Practices**: Use AI feedback to continuously improve coding skills
+- **Streamline Reviews**: Reduce the manual effort required for thorough code reviews
+
+The combination of enhanced Sentry instrumentation with AI-powered development tools creates a powerful workflow for building reliable, well-monitored applications. Continue using `@sentry review` and `@sentry generate-test` commands on your pull requests to maintain high standards as your application evolves.
