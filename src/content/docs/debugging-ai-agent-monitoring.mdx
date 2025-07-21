@@ -14,13 +14,13 @@ We can search for courses now! Sentry Academy features a few new AI features to 
   size={100}
 />
 
-Sentry recently released AI Agent Monitoring, which gives you a view into the performance and debugging for AI Agents. This feature gives you a few new capabilities in sentry: 
+Sentry recently released AI Agent Monitoring, which gives you a view into the performance and debugging for AI Agents. This feature gives you a few new capabilities in sentry:
 
-* Direct integration with the AI SDK (from Vercel), OpenAI Agents SDKs
-* Custom instrumetnation options when out of the box SDK support isnt available 
-* Views into LLM calls and tool performance
-* Specialized trace view focused on input and output calls for AI
-* End to end visibility across frontend, through the AI agents, and into any backend calls (i.e. database performance)
+- Direct integration with the AI SDK (from Vercel), OpenAI Agents SDKs
+- Custom instrumetnation options when out of the box SDK support isnt available
+- Views into LLM calls and tool performance
+- Specialized trace view focused on input and output calls for AI
+- End to end visibility across frontend, through the AI agents, and into any backend calls (i.e. database performance)
 
 ## Learning Objectives
 
@@ -31,20 +31,20 @@ By the end of this module, you will:
 - Review the AI Agent Insights view in Sentry
 - Explore AI related spans and performance information
 
-Getting started with AI Agent Monitoring is straight forward. We need to... 
+Getting started with AI Agent Monitoring is straight forward. We need to...
 
-* Enable the SDK integrations if applicable in our application. We're using Node + the AI SDK from Vercel, so we need to update our Sentry config with the integration stanza
-* Instrument our AI calls with the `experimental_telemetry` calls 
+- Enable the SDK integrations if applicable in our application. We're using Node + the AI SDK from Vercel, so we need to update our Sentry config with the integration stanza
+- Instrument our AI calls with the `experimental_telemetry` calls
 
 ## Backend - Enabling the SDK Integration
 
-Let's start by enabling the SDK integration in Sentry. We'll need to do this in our Sentry config for the server side. 
+Let's start by enabling the SDK integration in Sentry. We'll need to do this in our Sentry config for the server side.
 
 <Steps>
   1. **Add the AI SDK Integration to the Sentry Initialization**
 
      Browse to the `/apps/server/instrument.ts` file and add the following to the `Sentry.init` call:
-     
+
       ```tsx
       integrations: [
         Sentry.vercelAIIntegration({
@@ -55,65 +55,82 @@ Let's start by enabling the SDK integration in Sentry. We'll need to do this in 
       ```
 
       Save this file and the app will reload to pick up the integration.
+
 </Steps>
 
-## Configuring the Chat Bot for Agent Monitoring 
+## Configuring the Chat Bot for Agent Monitoring
 
 <Steps>
 
 2. **Update the ChatBot with the `experimental_telemetry` Configuration**
 
-    Navigate to line `229` in `/apps/server/src/modules/chat/routes.ts` and add the `experimental_telemetry` configuration to the `streamText` call:
+   Navigate to line `229` in `/apps/server/src/modules/chat/routes.ts` and add the `experimental_telemetry` configuration to the `streamText` call:
 
-    ```tsx
-      const result = await streamText({
-      model: openai(actualModel),
-      experimental_telemetry: {
-        isEnabled: true,
-        functionId: 'chatRequest',
-      },
-      messages: [
-    ```
+   ```tsx
+     const result = await streamText({
+     model: openai(actualModel),
+     experimental_telemetry: {
+       isEnabled: true,
+       functionId: 'chatRequest',
+     },
+     messages: [
+   ```
 
-    Save this file, and now when calls are made to OpenAI from the ChatBot interface in Sentry, these calls will be monitored in AI Agent Monitoring. 
+   Save this file, and now when calls are made to OpenAI from the ChatBot interface in Sentry, these calls will be monitored in AI Agent Monitoring.
 
 3. **Test the chat function in Sentry Academy**
 
-    Click on the Chat Bot in the bottom right corner of the application and ask it to tell you about the courses available in Sentry Academy. Note: This might take 2 attempts; bugs happen.  
+   Click on the Chat Bot in the bottom right corner of the application and ask it to tell you about the courses available in Sentry Academy. Note: This might take 2 attempts; bugs happen.
 
    <ScaledImage
      src="/assets/img/chatbot-call.png"
      alt="ChatBot Call"
-     size={75} 
+     size={75}
    />
 
 4. **Review the Results in AI Agent Monitoring**
 
-   On the left navigation, select `Insights > AI Agents` and ensure you have the backend for your academy project selected. You should see a dashboard that looks similar to the below. 
+   On the left navigation, select `Insights > AI Agents` and ensure you have the backend for your academy project selected. You should see a dashboard that looks similar to the below.
 
-   <ScaledImage src="/assets/img/ai-agent-dashboard.png" alt="AI Agent Dashboard" size={75} /> 
+   <ScaledImage
+     src="/assets/img/ai-agent-dashboard.png"
+     alt="AI Agent Dashboard"
+     size={75}
+   />
 
 5. **Review the Agent Trace View**
 
-    Select the trace on the bottom for the `/api/chat` route, you'll see an abbreviated trace view display that shows all the AI interactions to took place when you made the request.  
+   Select the trace on the bottom for the `/api/chat` route, you'll see an abbreviated trace view display that shows all the AI interactions to took place when you made the request.
 
-   <ScaledImage src="/assets/img/agent-span.png" alt="AI Agent Trace" size={75} />
+   <ScaledImage
+     src="/assets/img/agent-span.png"
+     alt="AI Agent Trace"
+     size={75}
+   />
 
 6. **Review tool call spans**
 
-   The tool call spans will show you input and output information for the calls. This makes it easier to understand what specific tool call was used, the system prompt that the agent recieved, and how your request influenced the tool call usage. 
+   The tool call spans will show you input and output information for the calls. This makes it easier to understand what specific tool call was used, the system prompt that the agent recieved, and how your request influenced the tool call usage.
 
-   <ScaledImage src="/assets/img/tool-span.png" alt="Tool Call Span" size={75} />
+   <ScaledImage
+     src="/assets/img/tool-span.png"
+     alt="Tool Call Span"
+     size={75}
+   />
 
 7. **Explore the full trace waterfall**
 
-    Clicking on the "View Full Trace" button on the top right of the trace view will take you to the full trace waterfall view. This view shows you the full trace of the request, including the AI agent calls, tool calls, and any backend calls. 
+   Clicking on the "View Full Trace" button on the top right of the trace view will take you to the full trace waterfall view. This view shows you the full trace of the request, including the AI agent calls, tool calls, and any backend calls.
 
-    This is the real strength of Sentry and AI Agent Monitoring - being able to understand the full performance across the entire stack of your application. 
+   This is the real strength of Sentry and AI Agent Monitoring - being able to understand the full performance across the entire stack of your application.
 
-    <ScaledImage src="/assets/img/full-trace-ai.png" alt="Full Trace" size={75} />
+   <ScaledImage
+     src="/assets/img/full-trace-ai.png"
+     alt="Full Trace"
+     size={75}
+   />
 
-    These spans can all be used to create alerts, dashboard views, and understand the full view of application performance across the stack.
+   These spans can all be used to create alerts, dashboard views, and understand the full view of application performance across the stack.
 
 </Steps>
 
@@ -135,6 +152,7 @@ We can quickly move through instrumenting the same flow for monitoring our cours
       },
       messages: [
      ```
+
 </Steps>
 
 ## Testing the AI Course Builder
@@ -143,32 +161,44 @@ We can quickly move through instrumenting the same flow for monitoring our cours
 
 2. **Test the Course Builder functionality**
 
-   Navigate to the Course Builder and select the "Create Course" button on the top right. Fill in a prompt for a lesson you want to create a course for. Seriously, it doesn't matter. 
+   Navigate to the Course Builder and select the "Create Course" button on the top right. Fill in a prompt for a lesson you want to create a course for. Seriously, it doesn't matter.
 
-   <ScaledImage src="/assets/img/course-builder.png" alt="Course Builder" size={75} />
+   <ScaledImage
+     src="/assets/img/course-builder.png"
+     alt="Course Builder"
+     size={75}
+   />
 
 3. **Review the created course**
 
-   After a few moments, the course will be created successfully. You'll be able to see the course in the list, and click in to review the topics it covers.  
+   After a few moments, the course will be created successfully. You'll be able to see the course in the list, and click in to review the topics it covers.
 
-   <ScaledImage src="/assets/img/created-course.png" alt="Created Course" size={75} /> 
+   <ScaledImage
+     src="/assets/img/created-course.png"
+     alt="Created Course"
+     size={75}
+   />
 
 </Steps>
 
-## Reviewing AI Agent Monitoring in Sentry 
+## Reviewing AI Agent Monitoring in Sentry
 
 <Steps>
 
 4. **Return to Insights > AI Agents **
 
-    Navigate back to the `Insights > AI Agents` view for your project, and when you scroll to the bottom you'll see updated values with the new call available. 
+   Navigate back to the `Insights > AI Agents` view for your project, and when you scroll to the bottom you'll see updated values with the new call available.
 
-    <ScaledImage src="/assets/img/updated-calls-agents.png" alt="Updated Calls" size={75} /> 
-   
-4. **Viewing Tool Calls**
+   <ScaledImage
+     src="/assets/img/updated-calls-agents.png"
+     alt="Updated Calls"
+     size={75}
+   />
 
-    Selecting the tools tab shows us statistics for the differernt tool calls that have been made. When we dive into any of these we'll be dropped into the Trace Explorer where we can query and search across all the traces in the environment. 
-    
+5. **Viewing Tool Calls**
+
+   Selecting the tools tab shows us statistics for the differernt tool calls that have been made. When we dive into any of these we'll be dropped into the Trace Explorer where we can query and search across all the traces in the environment.
+
    <ScaledImage
      src="/assets/img/ai-tools-tab.png"
      alt="AI Tools Tab"
@@ -179,6 +209,6 @@ We can quickly move through instrumenting the same flow for monitoring our cours
 
 ## Summing Up Agent Monitoring
 
-AI Agent Monitoring in Sentry gives you a connected view across everything happening in your application; including the inner workings of the Agents. You can use it to understabnd how model changes are impacting token usage, how your adjustments are impacting the performance of LLM calls, and even run comparisons across different model performance. 
+AI Agent Monitoring in Sentry gives you a connected view across everything happening in your application; including the inner workings of the Agents. You can use it to understabnd how model changes are impacting token usage, how your adjustments are impacting the performance of LLM calls, and even run comparisons across different model performance.
 
-The simplified trace view lets you understand the different parameters going into your LLMs and the outputs being returned from those calls - making it easier to debug the weird interactions that LLMs have today. 
+The simplified trace view lets you understand the different parameters going into your LLMs and the outputs being returned from those calls - making it easier to debug the weird interactions that LLMs have today.

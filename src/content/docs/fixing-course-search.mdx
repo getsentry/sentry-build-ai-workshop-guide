@@ -10,7 +10,11 @@ Now that we're able to login, naturally the next thing we'd want to do is be abl
 
 Well, clearly not - because its broken!
 
-<ScaledImage src="/assets/img/broken-search.webp" alt="Broken Course Search" size={85} />
+<ScaledImage
+  src="/assets/img/broken-search.webp"
+  alt="Broken Course Search"
+  size={85}
+/>
 <ScaledImage src="/assets/img/m2-issues.png" alt="Module 2 Issues" size={100} />
 
 We're seeing the error pop up in Sentry, but how can we use [**Seer**](https://docs.sentry.io/product/ai-in-sentry/seer/) and the [**Sentry MCP server**](https://docs.sentry.io/product/sentry-mcp) to help analyze and fix the issue quicker?
@@ -53,7 +57,7 @@ Before we dive into using Seer to analyze our course search issue, let's set up 
 
      Install the Sentry MCP integration in your IDE (we'll be using Cursor) to enable direct communication with Sentry's debugging data and Seer analysis.
      - Visit Cursor ➡️ Settings ➡️ Tools & Integrations ➡️ MCP Tools
-     - Select "Add Custom MCP" and add: 
+     - Select "Add Custom MCP" and add:
 
      ```bash
       {
@@ -64,19 +68,39 @@ Before we dive into using Seer to analyze our course search issue, let's set up 
         }
       }
      ```
-     
-     Once everything is complete, you should see a little green light below the icon in the MCP tools list indicating 👍
-     You may need to choose something else from the left menu, then return here to confirm. Note the tool calls we now have access to. 
-     
-     <ScaledImage src="/assets/img/cursor_mcp.png" alt="Sentry MCP Setup" size={100} /> 
 
-  2. **Authenticate with Sentry**
 
-     If you've used the above configuration, you'll be automatically authenticated with OAuth.
+2. **Authenticate with Sentry**
 
-     {/* TODO: show alternative methods or Sentry web tool */}
+   If you've used the above configuration, you'll be automatically authenticated with OAuth.
+
+   Once everything is complete, you should see a little green light below the icon in the MCP tools list indicating 👍 You may need to choose something else from the left menu, then return here to confirm it took.
+
+   \*Note: click to expand and see the tool calls we now have access to.
+
+   <ScaledImage
+     src="/assets/img/cursor_mcp.png"
+     alt="Sentry MCP Setup"
+     size={100}
+   />
+
+3. **Enable Seer Automation settings in your Sentry Project(s)**
+
+   In Sentry, visit Project ➡️ Settings ➡️ Seer and add your repo. We'll do this for both the Frontend and Server applications.
+
+   Here we can fine-tune the automation settings for how we want Seer to work. Scan Sentry Issues for a root cause analysis... and then? 🤖
+
+   <ScaledImage
+     src="/assets/img/seer-project-settings.png"
+     alt="Seer Settings"
+     size={100}
+   />
 
 </Steps>
+
+Alternatively you can use the [mcp.sentry.dev](mcp.sentry.dev) web client for a simple way to configure and test the MCP server. From here you can authenticate with your Sentry organization and access a hosted MCP server for testing.
+
+<ScaledImage src="/assets/img/sentry-mcp-web.png" alt="Seer" size={100} />
 
 ## Using Seer to Analyze the Course Search Issue
 
@@ -94,41 +118,41 @@ We can see in the configuration the available tool calls we can utilize in Curso
 
      The MCP server will fetch live issue data from Sentry and present it directly in your development environment.
 
-  2. **Trigger Seer Analysis**
+2. **Trigger Seer Analysis**
 
-     Ask Seer to perform a root cause analysis on the search issues:
+   Ask Seer to perform a root cause analysis on the search issues:
 
-     ```
-     Use Sentry Seer to analyze the root cause of the course search failures
-     ```
+   ```
+   Use Sentry Seer to analyze the root cause of the course search failures
+   ```
 
-     Seer will automatically:
-     - Examine error traces across frontend and backend
-     - Analyze request/response patterns
-     - Identify parameter mismatches
-     - Correlate timing and performance data
+   Seer will automatically:
+   - Examine error traces across frontend and backend
+   - Analyze request/response patterns
+   - Identify parameter mismatches
+   - Correlate timing and performance data
 
-  3. **Review Seer's Findings**
+3. **Review Seer's Findings**
 
-     Seer will identify that the frontend is sending a `query` parameter while the backend expects a `q` parameter. The analysis will include:
-     
-     - **Root Cause**: Parameter name mismatch between frontend (`query`) and backend (`q`)
-     - **Error Location**: Frontend API service and backend search route
-     - **Impact**: 100% failure rate for course search functionality
-     - **Confidence**: High (based on consistent error patterns)
+   Seer will identify that the frontend is sending a `query` parameter while the backend expects a `q` parameter. The analysis will include:
+   - **Root Cause**: Parameter name mismatch between frontend (`query`) and backend (`q`)
+   - **Error Location**: Frontend API service and backend search route
+   - **Impact**: 100% failure rate for course search functionality
+   - **Confidence**: High (based on consistent error patterns)
 
-  4. **Apply Seer's Fix Suggestions**
+4. **Apply Seer's Fix Suggestions**
 
-     Seer will provide the exact code changes needed. You can either:
-     
-     **Option A**: Apply the fix manually based on Seer's suggestions
-     
-     **Option B**: Let Seer generate a pull request with the fix
+   Seer will provide the exact code changes needed. You can either:
 
-     For Option B, simply ask:
-     ```
-     Generate a pull request to fix the parameter mismatch issue
-     ```
+   **Option A**: Apply the fix manually based on Seer's suggestions
+
+   **Option B**: Let Seer generate a pull request with the fix
+
+   For Option B, simply ask:
+
+   ```
+   Generate a pull request to fix the parameter mismatch issue
+   ```
 
 </Steps>
 
@@ -144,25 +168,25 @@ Seer's automated analysis reveals the issue and provides the exact fix needed:
      ```tsx
      // Current (broken) code:
      fetchApi<any[]>(`/search/courses?query=${encodeURIComponent(query)}`)
-     
+
      // Seer's suggested fix:
      fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`)
      ```
 
-  2. **Apply the Fix**
+2. **Apply the Fix**
 
-     Navigate to `/apps/frontend/src/services/api.ts` and update the search method:
+   Navigate to `/apps/frontend/src/services/api.ts` and update the search method:
 
-     ```tsx
-     search: {
-       courses: (query: string) =>
-         fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`),
-     },
-     ```
+   ```tsx
+   search: {
+     courses: (query: string) =>
+       fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`),
+   },
+   ```
 
-  3. **Verify the Fix**
+3. **Verify the Fix**
 
-     Test the course search functionality again. Seer will continue monitoring and confirm that the issue has been resolved.
+   Test the course search functionality again. Seer will continue monitoring and confirm that the issue has been resolved.
 
 </Steps>
 
