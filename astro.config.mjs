@@ -46,7 +46,7 @@ export default defineConfig({
             {
               label: 'Taking apart new features (Sentry PR Review)',
               slug: 'new-feature-pr-review',
-            }
+            },
           ],
         },
         {
