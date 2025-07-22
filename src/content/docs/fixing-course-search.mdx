@@ -100,10 +100,9 @@ Alternatively, you can use the [mcp.sentry.dev](https://mcp.sentry.dev/) web cli
 
 <ScaledImage src="/assets/img/sentry-mcp-web.png" alt="Seer" size={100} />
 
-## Using Seer to Analyze the Course Search Issue
+## Using Seer to Fix the Course Search Issue
 
 Now that we have MCP set up, let's use Seer to automatically analyze and fix our course search problem.
-We can see in the configuration the available tool calls we can utilize in Cursor's chat window.
 
 <Steps>
   1. **Query Sentry Issues via MCP**
@@ -111,17 +110,17 @@ We can see in the configuration the available tool calls we can utilize in Curso
      In your IDE's AI chat interface, use the MCP connection to query Sentry about the course search issues:
 
      ```
-     Find project <you-project-name> in Sentry
+     tell me about issues in this project in sentry
      ```
 
      The MCP server will fetch live issue data from Sentry and present it directly in your development environment.
 
-2. **Get Seer Analysis for Specific Issue**
+2. **Get AI Analysis for Specific Issue**
 
-   Ask the Sentry MCP server to get the last auto fix data for the specific issue:
+   Ask the Sentry MCP server to get the last autofix data for the specific issue:
 
    ```
-   Use Sentry Seer to analyze the root cause of issue <ISSUE-ID> and get the last auto fix data
+   tell me about the last autofix run on <ISSUE-ID>
    ```
 
    Replace `<ISSUE-ID>` with the actual issue ID from your Sentry project (e.g., `PROJECT-123`).
@@ -132,28 +131,28 @@ We can see in the configuration the available tool calls we can utilize in Curso
    - Trigger Seer analysis if not already available
    - Return the complete analysis with fix suggestions
 
-3. **Review Seer's Analysis in Cursor**
+3. **Review the Analysis in Cursor**
 
    You'll see Seer's analysis appear right in your chat window, giving you a clear picture of what's happening.
 
    You should see:
-   - **What's Actually Wrong**: Seer's root cause analysis explaining exactly why the search is failing
+   - **What's Actually Wrong**: Root cause analysis explaining exactly why the search is failing
    - **Where the Problem Is**: Specific files and line numbers where the issue occurs
    - **How Bad It Is**: Assessment showing how many users are affected
-   - **How Sure Seer Is**: Confidence level in the diagnosis
+   - **Confidence Level**: How sure the AI is in the diagnosis
    - **How to Fix It**: Exact code changes needed to resolve the issue
 
 4. **Apply the Fix Locally**
 
-   Once you've reviewed Seer's analysis and you're happy with the suggested solution, just ask Cursor to implement the fix:
+   Once you've reviewed the analysis and you're happy with the suggested solution, just ask Cursor to implement the fix:
 
    ```
-   Apply the Seer fix suggestions to my local codebase
+   apply the Seer fix suggestions to my local codebase
    ```
 
    Cursor will then:
    - Look through your current code files
-   - Apply the exact changes that Seer recommended
+   - Apply the exact changes that were recommended
    - Update the necessary files with the fixes
    - Give you a summary of what was changed so you know exactly what happened
 
@@ -161,7 +160,7 @@ We can see in the configuration the available tool calls we can utilize in Curso
 
 ## Automated Fix with Seer
 
-Seer's automated analysis reveals the issue and provides the exact fix needed. Here's what this powerful debugging experience looks like in action:
+The automated analysis reveals the issue and provides the exact fix needed. Here's what this debugging experience looks like in action:
 
 <Steps>
   1. **Seer's Analysis Results in Cursor**
@@ -186,10 +185,10 @@ Seer's automated analysis reveals the issue and provides the exact fix needed. H
 
 2. **Cursor Applies the Fix Locally**
 
-   After reviewing Seer's analysis and you're confident in the solution, ask Cursor to implement the fix:
+   After reviewing the analysis and you're confident in the solution, ask Cursor to implement the fix:
 
    ```
-   Apply the Seer fix suggestions to my local codebase
+   apply that autofix to my local codebase
    ```
 
    Cursor will then automatically:
