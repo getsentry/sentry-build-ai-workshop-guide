@@ -1,10 +1,10 @@
 ---
-// Custom Sentry logo component - text-only version
+// Custom Sentry logo component - image version
 ---
 
 <div class="sentry-logo">
   <a href="/" aria-label="Go to homepage">
-    <span class="sentry-logo-text">Sentry Build</span>
+    <img src="/assets/sentrytext.png" alt="Sentry Build" class="sentry-logo-image" />
   </a>
 </div>
 
@@ -12,7 +12,7 @@
   .sentry-logo {
     display: flex;
     align-items: center;
-    margin-right: 1em;
+    margin-right: 0.5em;
   }
   
   .sentry-logo a {
@@ -21,26 +21,18 @@
     align-items: center;
   }
   
-  .sentry-logo-text {
-    color: var(--sl-color-text);
-    font-weight: 700;
-    font-size: 1.5rem;
-    letter-spacing: -0.01em;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  .sentry-logo-image {
+    position: absolute;
+    width: auto;
+    object-fit: contain;
+    max-width: 175px;
+    left: 20px;
   }
   
-  /* Add purple gradient effect */
-  .sentry-logo-text {
-    background: linear-gradient(90deg, var(--sl-color-text-accent), var(--sl-color-accent));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  /* In dark mode, use white text instead of gradient */
-  :root[data-theme='dark'] .sentry-logo-text {
-    background: none;
-    -webkit-text-fill-color: white;
-    color: white;
+  /* Ensure image scales properly on smaller screens */
+  @media (max-width: 768px) {
+    .sentry-logo-image {
+      max-width: 110px;
+    }
   }
 </style> 
