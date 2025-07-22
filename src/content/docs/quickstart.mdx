@@ -28,75 +28,74 @@ We recommend setting up two separate projects in your Sentry account: one for th
 <Steps>
 1. **Fork the repository**
 
-     Go to [https://github.com/getsentry/sentry-academy-ai-workshop](https://github.com/getsentry/sentry-academy-ai-workshop) and click the "Fork" button in the top right. We'll do this instead of simply cloning the repo because we'll demo features of AI agent, Seer which can open PRs to fix code for us.
+     Go to [https://github.com/getsentry/sentry-build-ai-workshop](https://github.com/getsentry/sentry-build-ai-workshop) and click the "Fork" button in the top right. We'll do this instead of simply cloning the repo because we'll demo features of AI agent, Seer which can open PRs to fix code for us.
 
      <ScaledImage src="/assets/img/repo-fork.png" alt="Forking the repository" />
 
 2. **Leave the fork network**
 
-     Go to the settings of your forked repo, scroll all the way down to the Danger Zone, click "Leave fork network", and follow the prompts to convert your forked repo into a standalone repo, all nice and isolated from the original.
+   Go to the settings of your forked repo, scroll all the way down to the Danger Zone, click "Leave fork network", and follow the prompts to convert your forked repo into a standalone repo, all nice and isolated from the original.
 
-     <ScaledImage src="/assets/img/leave-fork-network.png" alt="Leaving the fork network" size={75} />   
+   <ScaledImage
+     src="/assets/img/leave-fork-network.png"
+     alt="Leaving the fork network"
+     size={75}
+   />
 
-3.  **Then, clone your fork:**
+3. **Then, clone your fork:**
 
-    ```bash
-    git clone https://github.com/<your-username>/sentry-academy-ai-workshop.git
-    ```
+   ```bash
+   git clone https://github.com/<your-username>/sentry-build-ai-workshop.git
+   ```
 
-4.  **Navigate to the project directory**
+4. **Navigate to the project directory**
 
+   ```bash
+   cd sentry-build-ai-workshop
+   ```
 
-    ```bash
-    cd sentry-academy-ai-workshop
-    ```
+5. **Install dependencies with PNPM**
 
-5.  **Install dependencies with PNPM**
+   ```bash
+   pnpm i
+   ```
 
+6. **Set up environment variables**
 
-    ```bash
-    pnpm i
-    ```
+   ```bash
+   touch apps/server/.env
+   echo "PORT=3001" >> apps/server/.env
+   cd apps/server
+   ```
 
-6.  **Set up environment variables**
+7. **Database Setup**
 
+   We'll be using [NeonDB](https://neon.new/) for this workshop, so we need to set up the database. Navigate to the `apps/server` directory and run the following commands and select the defaults when prompted:
 
-    ```bash
-    touch apps/server/.env
-    echo "PORT=3001" >> apps/server/.env
-    cd apps/server
-    ```
+   ```bash
+   pnpx neondb -y
+   ```
 
-7.  **Database Setup**
+8. **Seed the Database**
 
+   ```bash
+   pnpm db:generate
+   pnpm db:push
+   pnpm db:seed
+   ```
 
-    We'll be using [NeonDB](https://neon.new/) for this workshop, so we need to set up the database. Navigate to the `apps/server` directory and run the following commands and select the defaults when prompted:
+9. **Start the Project (from the root)**
 
-    ```bash
-    pnpx neondb -y
-    ```
+   ```bash
+   cd ../..
+   pnpm dev
+   ```
 
-8.  **Seed the Database**
+10. **Access the application project**
 
-
-    ```bash
-    pnpm db:generate
-    pnpm db:push
-    pnpm db:seed
-    ```
-
-9.  **Start the Project (from the root)**
-
-
-    ```bash
-    cd ../..
-    pnpm dev
-    ```
-
-10.  **Access the application project**
-
-
-         The project will now be running at [http://localhost:5173](http://localhost:5173) with the backend API running on [http://localhost:3001](http://localhost:3001).
+    The project will now be running:
+    - with the frontend running on [http://localhost:5173](http://localhost:5173)
+    - with the backend API running on [http://localhost:3001](http://localhost:3001)
 
 </Steps>
 

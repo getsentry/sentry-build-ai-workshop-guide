@@ -21,30 +21,29 @@ We're seeing the error pop up in Sentry, but how can we use [**Seer**](https://d
 
 ## Learning Objectives
 
-By the end of this module, you will:
+By the end of this module, you'll know how to:
 
 - Use **Seer**'s AI-powered debugging to automatically analyze and diagnose errors
-- Leverage **automated fix suggestions** to resolve issues faster than manual debugging
+- Take advantage of **automated fix suggestions** to resolve issues faster than manual debugging
 - See how **AI can generate pull requests** with the fixes needed to resolve the issue
 - Use the **Sentry MCP Server** to bring real-time Sentry context into your development environment
 - Access **live issue data** and **Seer analysis** directly from your IDE or AI agentic workflow
 
-### How Sentry Seer and MCP Will Solve This Problem
+### How Seer and MCP Will Help Us
 
-Sentry Seer uses advanced AI to automatically analyze your application's errors, traces, and logs to identify root causes and suggest fixes. For our course search problem, Seer will:
+For our course search problem, Seer will leverage:
 
-1. **Intelligent Error Analysis**: Seer will examine the error context and understand what's going wrong in your application
-2. **Full-Stack Correlation**: By analyzing traces and logs across your frontend and backend, Seer can see the complete picture of what's happening
-3. **Automatic Root Cause Detection**: Seer will identify the exact issue causing the search to fail
-4. **Smart Fix Suggestions**: AI will provide the exact code changes needed to resolve the problem
-5. **Automated Resolution**: Seer can even generate pull requests with the fixes, saving you time and effort
+1. **Intelligent Error Analysis**: examine the error context and understand what's going wrong across the full application
+2. **Automatic Root Cause Detection**: identify the exact issue causing the search to fail
+3. **Actionable Solutions**: Seer doesn't just tell you there's a problem—it shows you exactly what code to change and how to fix it
+4. **Hands-Free Fixes**: When you're ready, Seer can even fix the issue and create a pull request for you, so you can focus on building features instead of debugging
 
 ### Enhanced Debugging with Sentry MCP Server
 
 The [Sentry MCP Server](https://docs.sentry.io/product/sentry-mcp/) provides secure connectivity between your development environment and Sentry's rich debugging data. With MCP integration, you can:
 
-- **Access Real-Time Context**: Bring live Sentry issues, traces, and logs directly into your IDE or AI Agentic workflow
-- **Invoke Seer Remotely**: Trigger Seer analysis and get fix recommendations without leaving your development environment
+- **Access Real-Time Context**: Bring live Sentry issues, traces, and logs directly into your IDE or AI agentic workflow
+- **Invoke Seer Remotely**: Trigger Seer and get fix recommendations without leaving your development environment
 - **Search Across Projects**: Query your entire Sentry organization for related issues and patterns
 - **Streamlined Workflow**: Eliminate context switching between your code editor and Sentry dashboard
 
@@ -68,7 +67,6 @@ Before we dive into using Seer to analyze our course search issue, let's set up 
         }
       }
      ```
-
 
 2. **Authenticate with Sentry**
 
@@ -98,14 +96,13 @@ Before we dive into using Seer to analyze our course search issue, let's set up 
 
 </Steps>
 
-Alternatively you can use the [mcp.sentry.dev](mcp.sentry.dev) web client for a simple way to configure and test the MCP server. From here you can authenticate with your Sentry organization and access a hosted MCP server for testing.
+Alternatively, you can use the [mcp.sentry.dev](https://mcp.sentry.dev/) web client for a simple way to configure and test the MCP server. From here you can authenticate with your Sentry organization and access a hosted MCP server for testing.
 
 <ScaledImage src="/assets/img/sentry-mcp-web.png" alt="Seer" size={100} />
 
-## Using Seer to Analyze the Course Search Issue
+## Using Seer to Fix the Course Search Issue
 
 Now that we have MCP set up, let's use Seer to automatically analyze and fix our course search problem.
-We can see in the configuration the available tool calls we can utilize in Cursor's chat window.
 
 <Steps>
   1. **Query Sentry Issues via MCP**
@@ -113,80 +110,96 @@ We can see in the configuration the available tool calls we can utilize in Curso
      In your IDE's AI chat interface, use the MCP connection to query Sentry about the course search issues:
 
      ```
-     Find project <you-project-name> in Sentry
+     tell me about issues in this project in sentry
      ```
 
      The MCP server will fetch live issue data from Sentry and present it directly in your development environment.
 
-2. **Trigger Seer Analysis**
+2. **Get AI Analysis for Specific Issue**
 
-   Ask Seer to perform a root cause analysis on the search issues:
-
-   ```
-   Use Sentry Seer to analyze the root cause of the course search failures
-   ```
-
-   Seer will automatically:
-   - Examine error traces across frontend and backend
-   - Analyze request/response patterns
-   - Identify parameter mismatches
-   - Correlate timing and performance data
-
-3. **Review Seer's Findings**
-
-   Seer will identify that the frontend is sending a `query` parameter while the backend expects a `q` parameter. The analysis will include:
-   - **Root Cause**: Parameter name mismatch between frontend (`query`) and backend (`q`)
-   - **Error Location**: Frontend API service and backend search route
-   - **Impact**: 100% failure rate for course search functionality
-   - **Confidence**: High (based on consistent error patterns)
-
-4. **Apply Seer's Fix Suggestions**
-
-   Seer will provide the exact code changes needed. You can either:
-
-   **Option A**: Apply the fix manually based on Seer's suggestions
-
-   **Option B**: Let Seer generate a pull request with the fix
-
-   For Option B, simply ask:
+   Ask the Sentry MCP server to get the last autofix data for the specific issue:
 
    ```
-   Generate a pull request to fix the parameter mismatch issue
+   tell me about the last autofix run on <ISSUE-ID>
    ```
+
+   Replace `<ISSUE-ID>` with the actual issue ID from your Sentry project (e.g., `PROJECT-123`).
+
+   The MCP server will:
+   - Connect to your Sentry organization
+   - Retrieve the specific issue details
+   - Trigger Seer analysis if not already available
+   - Return the complete analysis with fix suggestions
+
+3. **Review the Analysis in Cursor**
+
+   You'll see Seer's analysis appear right in your chat window, giving you a clear picture of what's happening.
+
+   You should see:
+   - **What's Actually Wrong**: Root cause analysis explaining exactly why the search is failing
+   - **Where the Problem Is**: Specific files and line numbers where the issue occurs
+   - **How Bad It Is**: Assessment showing how many users are affected
+   - **Confidence Level**: How sure the AI is in the diagnosis
+   - **How to Fix It**: Exact code changes needed to resolve the issue
+
+4. **Apply the Fix Locally**
+
+   Once you've reviewed the analysis and you're happy with the suggested solution, just ask Cursor to implement the fix:
+
+   ```
+   apply that autofix to my local codebase
+   ```
+
+   Cursor will then:
+   - Look through your current code files
+   - Apply the exact changes that were recommended
+   - Update the necessary files with the fixes
+   - Give you a summary of what was changed so you know exactly what happened
 
 </Steps>
 
-## Automated Fix with Seer
+## Recap
 
-Seer's automated analysis reveals the issue and provides the exact fix needed:
+The automated analysis reveals the issue and provides the exact fix needed. Here's what this debugging experience looks like in action:
 
 <Steps>
-  1. **Seer's Analysis Results**
+  1. **Seer's Analysis Results in Cursor**
 
-     Seer identifies the parameter mismatch and suggests updating the frontend to use `q` instead of `query`:
+     When you ask the MCP server to analyze the issue, you'll see output like this in Cursor:
 
-     ```tsx
-     // Current (broken) code:
-     fetchApi<any[]>(`/search/courses?query=${encodeURIComponent(query)}`)
+     ```
+     🔍 Seer Analysis for Issue PROJECT-123
 
-     // Seer's suggested fix:
-     fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`)
+     Root Cause: Parameter mismatch in API call
+     - Frontend sends: /search/courses?query=javascript
+     - Backend expects: /search/courses?q=javascript
+
+     Impact: 100% of search requests failing
+     Confidence: 95%
+
+     Suggested Fix:
+     File: /apps/frontend/src/services/api.ts
+     Line: 45
+     Change: Replace 'query' parameter with 'q' parameter
      ```
 
-2. **Apply the Fix**
+2. **Cursor Applies the Fix Locally**
 
-   Navigate to `/apps/frontend/src/services/api.ts` and update the search method:
+   After reviewing the analysis and you're confident in the solution, ask Cursor to implement the fix:
 
-   ```tsx
-   search: {
-     courses: (query: string) =>
-       fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`),
-   },
    ```
+   apply that autofix to my local codebase
+   ```
+
+   Cursor will then automatically:
+   - Find the file `/apps/frontend/src/services/api.ts`
+   - Update line 45 to use `q` instead of `query`
+   - Save the changes
+   - Let you know the fix has been applied
 
 3. **Verify the Fix**
 
-   Test the course search functionality again. Seer will continue monitoring and confirm that the issue has been resolved.
+   Test the course search functionality again. The search should now work correctly, and Seer will continue monitoring to confirm the issue has been resolved.
 
 </Steps>
 
@@ -200,7 +213,7 @@ Once this is complete, give search a try again and you should see your results!
 
 ## Next Steps with Seer and MCP
 
-Now that you've experienced how Seer and the MCP server can automatically diagnose and fix issues:
+Now that you've seen how Seer and the MCP server can automatically diagnose and fix issues, here are some ways you can take this further:
 
 - **Set up automated monitoring** to catch similar issues before they impact users
 - **Configure Seer alerts** to get proactive fix suggestions for new errors
