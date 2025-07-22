@@ -37,7 +37,8 @@
   --sl-font-size-sm: 0.95rem;
 
   /* Font family */
-  --sl-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --sl-font:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Light mode adjustments if needed */
@@ -56,7 +57,13 @@
 
 /* Global font styling */
 * {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif !important;
   font-weight: 400 !important; /* Inter 18pt regular weight */
   font-style: normal !important; /* Ensure no italic */
 }
@@ -69,12 +76,17 @@
 header .site-title,
 nav .site-title {
   font-weight: 900 !important;
-  font-family: "Inter", sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   font-size: 18pt !important;
 }
 
 /* Make all headings black weight */
-h1, h2, h3, h4, h5, h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 .sl-markdown-content h1,
 .sl-markdown-content h2,
 .sl-markdown-content h3,
@@ -82,7 +94,7 @@ h1, h2, h3, h4, h5, h6,
 .sl-markdown-content h5,
 .sl-markdown-content h6 {
   font-weight: 900 !important;
-  font-family: "Inter", sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 /* Main page styles */
@@ -166,7 +178,7 @@ h1, h2, h3, h4, h5, h6,
   text-align: left;
   font-weight: 900;
   font-style: normal;
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 [data-has-hero] .hero .tagline {
@@ -177,7 +189,7 @@ h1, h2, h3, h4, h5, h6,
   text-align: left;
   font-weight: 400;
   font-style: normal;
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 /* Hero action buttons styling - modern Sentry style */
@@ -204,7 +216,7 @@ h1, h2, h3, h4, h5, h6,
 /* Primary button (Get Started) */
 [data-has-hero] .hero .actions a:first-child {
   background-color: white;
-  color: #1A0F2E !important;
+  color: #1a0f2e !important;
 }
 
 [data-has-hero] .hero .actions a:first-child:hover {

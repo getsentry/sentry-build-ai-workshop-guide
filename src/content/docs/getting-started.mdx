@@ -356,9 +356,9 @@ These configurations will setup your React frontend to leverage all of Sentry's 
    Be sure to add the generated `sentryEsbuildPlugin` in the plugins array of the build configuration in `apps/server/build.js`
 
    ```js
-   const { sentryEsbuildPlugin } = require("@sentry/esbuild-plugin");
+   const { sentryEsbuildPlugin } = require('@sentry/esbuild-plugin');
 
-   require("esbuild").build({
+   require('esbuild').build({
      sourcemap: true, // Source map generation must be turned on
      plugins: [
        // Put the Sentry esbuild plugin here after all other plugins
@@ -395,21 +395,17 @@ We can even have it open PR's for us once it's determined root causes and applie
    In Sentry, make sure AI features are enabled in your [organization settings](https://sentry.io/orgredirect/organizations/:orgslug/settings/#hideAiFeatures).
 
 2. **Set up the Sentry GitHub integration**
-
-   - Navigate to Settings ➡️ Integrations ➡️ GitHub
+   - Navigate to Organization Settings ➡️ Integrations ➡️ GitHub
    - If you have the legacy GitHub integration installed, use the button next to GitHub to Upgrade. If you don't have the legacy GitHub integration installed, click to Install.
    - In the next view, click "Add Installation".
    - A GitHub install window should pop up. Click to "Authorize" Sentry.
 
-3. Select which repositories Sentry should have access to (or select all repositories).
+3. Select which repositories Sentry should have access to (or select all repositories). You may see a flow to choose the repo or organization to integrate with.
 
-4. You should then be redirected back to the Sentry Integrations page. You may see a flow to choose the repo or organization to integrate with.
+4. Return to the Sentry Integrations page.
 
-5. On your new GitHub instance in Sentry, click "Configure".
+5. Navigate to your new GitHub instance in Sentry, click the "Configurations" tab, then choose "Configure" on your instance
+
+6. All of your repositories will be added by default, you just have to refresh your screen. To only add select repositories, choose them from the dropdown list. Make sure you have given Sentry access to these repositories in GitHub in the previous steps.
 
 </Steps>
-
-All of your repositories will be added by default, you just have to refresh your screen. To only add select repositories, choose them from the dropdown list. Make sure you have given Sentry access to these repositories in GitHub in the previous steps.
-To be sure we'll double check our Project ➡️ Settings ➡️ Seer to confirm our repo is preset in the list.
-
-<ScaledImage src="/assets/img/seer-project-settings.png" alt="Seer Settings" size={100} />
