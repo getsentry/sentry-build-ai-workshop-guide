@@ -116,75 +116,91 @@ We can see in the configuration the available tool calls we can utilize in Curso
 
      The MCP server will fetch live issue data from Sentry and present it directly in your development environment.
 
-2. **Trigger Seer Analysis**
+2. **Get Seer Analysis for Specific Issue**
 
-   Ask Seer to perform a root cause analysis on the search issues:
-
-   ```
-   Use Sentry Seer to analyze the root cause of the course search failures
-   ```
-
-   Seer will automatically:
-   - Examine error traces across frontend and backend
-   - Analyze request/response patterns
-   - Identify parameter mismatches
-   - Correlate timing and performance data
-
-3. **Review Seer's Findings**
-
-   Seer will identify that the frontend is sending a `query` parameter while the backend expects a `q` parameter. The analysis will include:
-   - **Root Cause**: Parameter name mismatch between frontend (`query`) and backend (`q`)
-   - **Error Location**: Frontend API service and backend search route
-   - **Impact**: 100% failure rate for course search functionality
-   - **Confidence**: High (based on consistent error patterns)
-
-4. **Apply Seer's Fix Suggestions**
-
-   Seer will provide the exact code changes needed. You can either:
-
-   **Option A**: Apply the fix manually based on Seer's suggestions
-
-   **Option B**: Let Seer generate a pull request with the fix
-
-   For Option B, simply ask:
+   Ask the Sentry MCP server to get the last auto fix data for the specific issue:
 
    ```
-   Generate a pull request to fix the parameter mismatch issue
+   Use Sentry Seer to analyze the root cause of issue <ISSUE-ID> and get the last auto fix data
    ```
+
+   Replace `<ISSUE-ID>` with the actual issue ID from your Sentry project (e.g., `PROJECT-123`).
+
+   The MCP server will:
+   - Connect to your Sentry organization
+   - Retrieve the specific issue details
+   - Trigger Seer analysis if not already available
+   - Return the complete analysis with fix suggestions
+
+3. **Review Seer's Analysis in Cursor**
+
+   You'll see Seer's analysis appear right in your chat window, giving you a clear picture of what's happening.
+
+   You should see:
+   - **What's Actually Wrong**: Seer's root cause analysis explaining exactly why the search is failing
+   - **Where the Problem Is**: Specific files and line numbers where the issue occurs
+   - **How Bad It Is**: Assessment showing how many users are affected
+   - **How Sure Seer Is**: Confidence level in the diagnosis
+   - **How to Fix It**: Exact code changes needed to resolve the issue
+
+4. **Apply the Fix Locally**
+
+   Once you've reviewed Seer's analysis and you're happy with the suggested solution, just ask Cursor to implement the fix:
+
+   ```
+   Apply the Seer fix suggestions to my local codebase
+   ```
+
+   Cursor will then:
+   - Look through your current code files
+   - Apply the exact changes that Seer recommended
+   - Update the necessary files with the fixes
+   - Give you a summary of what was changed so you know exactly what happened
 
 </Steps>
 
 ## Automated Fix with Seer
 
-Seer's automated analysis reveals the issue and provides the exact fix needed:
+Seer's automated analysis reveals the issue and provides the exact fix needed. Here's what this powerful debugging experience looks like in action:
 
 <Steps>
-  1. **Seer's Analysis Results**
+  1. **Seer's Analysis Results in Cursor**
 
-     Seer identifies the parameter mismatch and suggests updating the frontend to use `q` instead of `query`:
+     When you ask the MCP server to analyze the issue, you'll see output like this in Cursor:
 
-     ```tsx
-     // Current (broken) code:
-     fetchApi<any[]>(`/search/courses?query=${encodeURIComponent(query)}`)
+     ```
+     🔍 Seer Analysis for Issue PROJECT-123
 
-     // Seer's suggested fix:
-     fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`)
+     Root Cause: Parameter mismatch in API call
+     - Frontend sends: /search/courses?query=javascript
+     - Backend expects: /search/courses?q=javascript
+
+     Impact: 100% of search requests failing
+     Confidence: 95%
+
+     Suggested Fix:
+     File: /apps/frontend/src/services/api.ts
+     Line: 45
+     Change: Replace 'query' parameter with 'q' parameter
      ```
 
-2. **Apply the Fix**
+2. **Cursor Applies the Fix Locally**
 
-   Navigate to `/apps/frontend/src/services/api.ts` and update the search method:
+   After reviewing Seer's analysis and you're confident in the solution, ask Cursor to implement the fix:
 
-   ```tsx
-   search: {
-     courses: (query: string) =>
-       fetchApi<any[]>(`/search/courses?q=${encodeURIComponent(query)}`),
-   },
    ```
+   Apply the Seer fix suggestions to my local codebase
+   ```
+
+   Cursor will then automatically:
+   - Find the file `/apps/frontend/src/services/api.ts`
+   - Update line 45 to use `q` instead of `query`
+   - Save the changes
+   - Let you know the fix has been applied
 
 3. **Verify the Fix**
 
-   Test the course search functionality again. Seer will continue monitoring and confirm that the issue has been resolved.
+   Test the course search functionality again. The search should now work correctly, and Seer will continue monitoring to confirm the issue has been resolved.
 
 </Steps>
 
