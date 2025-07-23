@@ -63,6 +63,11 @@ We recommend setting up two separate projects in your Sentry account: one for th
 6. **Set up environment variables**
 
    ```bash
+   touch apps/frontend/.env
+   echo "VITE_API_URL=http://localhost:3001" >> apps/frontend/.env
+   ```
+
+   ```bash
    touch apps/server/.env
    echo "PORT=3001" >> apps/server/.env
    cd apps/server
