@@ -35,6 +35,10 @@
   --sl-content-width: 65rem;
   --sl-sidebar-width: 18rem;
   --sl-font-size-sm: 0.95rem;
+  
+  /* Increase base font sizes */
+  --sl-text-base: 1.125rem; /* 18px instead of 16px */
+  --sl-text-body: 1.125rem; /* Main body text */
 
   /* Font family */
   --sl-font:
@@ -280,4 +284,29 @@ h6,
 /* Table of contents styling */
 .toc-wrapper {
   border-left: 1px solid var(--sl-color-border);
+}
+
+/* Increase paragraph and body text size */
+.sl-markdown-content p,
+.sl-markdown-content li,
+.sl-markdown-content td,
+.sl-markdown-content dd {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.7;
+}
+
+/* Increase code snippet font size */
+.sl-markdown-content pre,
+.sl-markdown-content code,
+.sl-markdown-content pre code,
+.expressive-code pre,
+.expressive-code code {
+  font-size: 1rem !important; /* 16px instead of default smaller size */
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
+}
+
+/* Inline code */
+.sl-markdown-content :not(pre) > code {
+  font-size: 0.95rem !important; /* Slightly smaller than block code */
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
 }
