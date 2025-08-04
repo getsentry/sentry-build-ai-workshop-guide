@@ -6,6 +6,46 @@
   padding: 0 1.5rem;
 }
 
+/* Main navigation styling */
+.nav {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  justify-content: space-between; /* Ensure proper spacing between logo and other elements */
+}
+
+/* Ensure search bar has proper margin from logo */
+.starlight .search {
+  margin-left: 1rem;
+}
+
+/* Responsive adjustments for split screen scenarios */
+@media (max-width: 1200px) {
+  .header {
+    padding: 0 1rem; /* Reduce padding on smaller screens */
+  }
+}
+
+@media (max-width: 900px) {
+  .header {
+    padding: 0 0.75rem;
+  }
+  
+  .starlight .search {
+    margin-left: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0 0.5rem;
+  }
+  
+  .starlight .search {
+    margin-left: 0.5rem;
+  }
+}
+
 /* Style navigation links */
 .nav-links a {
   color: var(--sl-color-text);
@@ -43,13 +83,6 @@
 .cta-button:hover,
 [data-has-sidebar] header a[href*='get-started']:hover {
   background-color: #f2f2f2;
-}
-
-/* Main navigation styling */
-.nav {
-  display: flex;
-  align-items: center;
-  height: 100%;
 }
 
 /* Add top-level menu styling similar to Sentry */

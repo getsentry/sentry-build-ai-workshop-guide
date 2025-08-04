@@ -4,6 +4,50 @@
 /* Import Inter font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
+/* Starlight header layout fixes */
+.sl-nav-logo + * {
+  margin-left: 1rem !important; /* Ensure space after logo */
+}
+
+/* Fix header flex layout for proper spacing */
+[data-has-sidebar] .header sl-nav-logo {
+  flex-shrink: 0;
+}
+
+/* Ensure search component doesn't overlap with logo */
+.sl-search {
+  margin-left: auto !important;
+  flex-shrink: 1;
+  min-width: 200px;
+}
+
+/* Responsive header adjustments for split screens */
+@media (max-width: 1200px) {
+  .sl-nav-logo + * {
+    margin-left: 0.75rem !important;
+  }
+  
+  .sl-search {
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 900px) {
+  .sl-nav-logo + * {
+    margin-left: 0.5rem !important;
+  }
+  
+  .sl-search {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sl-nav-logo + * {
+    margin-left: 0.25rem !important;
+  }
+}
+
 :root {
   /* Sentry brand colors - dark mode is default */
   --sl-color-accent-low: #2b1e44;

@@ -13,6 +13,7 @@
     display: flex;
     align-items: center;
     margin-right: 0.5em;
+    flex-shrink: 0; /* Prevent logo from shrinking */
   }
   
   .sentry-logo a {
@@ -22,17 +23,39 @@
   }
   
   .sentry-logo-image {
-    position: absolute;
+    /* Remove absolute positioning to prevent overlap */
+    position: relative;
     width: auto;
+    height: auto;
     object-fit: contain;
     max-width: 175px;
-    left: 20px;
+    max-height: 45px; /* Add height constraint for better header fit */
+  }
+  
+  /* Better responsive breakpoints for split screen scenarios */
+  @media (max-width: 1200px) {
+    .sentry-logo-image {
+      max-width: 150px;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .sentry-logo-image {
+      max-width: 130px;
+    }
   }
   
   /* Ensure image scales properly on smaller screens */
   @media (max-width: 768px) {
     .sentry-logo-image {
       max-width: 110px;
+    }
+  }
+  
+  /* Extra small screens and very narrow split windows */
+  @media (max-width: 600px) {
+    .sentry-logo-image {
+      max-width: 90px;
     }
   }
 </style> 
