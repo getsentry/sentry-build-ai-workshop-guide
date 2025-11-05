@@ -71,9 +71,7 @@ Select `React` and `Node.js` as the platforms respectively.
          matchRoutes,
        }),
      ],
-     _experiments: {
-       enableLogs: true,
-     },
+     enableLogs: true,
      tracesSampleRate: 1.0,
      tracePropagationTargets: ['localhost:3001'],
      replaysSessionSampleRate: 1.0,
@@ -326,9 +324,7 @@ These configurations will setup your React frontend to leverage all of Sentry's 
 
    Sentry.init({
      dsn: '<Your Sentry DSN>',
-     _experiments: {
-       enableLogs: true,
-     },
+     enableLogs: true,
      debug: true,
      tracesSampleRate: 1.0,
    });
