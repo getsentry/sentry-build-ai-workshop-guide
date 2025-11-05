@@ -233,6 +233,16 @@ Select `React` and `Node.js` as the platforms respectively.
                    }
                    errorElement={<ErrorBoundary />}
                  />
+                 
+                 <Route
+                   path="ai-course-builder"
+                   element={
+                     <ProtectedRoute>
+                       <AiCourseBuilderPage />
+                     </ProtectedRoute>
+                   }
+                   errorElement={<ErrorBoundary />}
+                 />
 
                  <Route
                    path="favorites"
